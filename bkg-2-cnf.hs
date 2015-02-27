@@ -1,5 +1,12 @@
 import System.IO
 import Data.Char
+import Data.List
+
+data NandRules = 
+	NandRules
+		{ nonterminals :: String
+		, rules :: [Rule]
+		} deriving Show
 
 data Rule =
 	Rule
@@ -30,6 +37,32 @@ tokenize delim (x:xs) =
 	then tokenize delim xs
 	else x : tokenize delim xs
 
+--isSimple
+isSimple :: Rule -> Bool
+isSimple r = 
+	if ((length (to r)) == 1) && (isLower ((to r) !! 0))
+		then True
+		else if ((length (to r)) == 2) && (isUpper ((to r) !! 0)) && (isUpper ((to r) !! 0))
+			then True
+			else False
+
+--leftToTwoNonterminals
+lttn :: String -> String
+lttn (x:xs) = 
+	if (length (x:xs)) == 1
+		then x : '\'' : []
+		else if (length (x:xs)) == 2
+				then if isLower x && isLower (head xs)
+					then (toUpper x) : '\'' : (toUpper (head xs)) : '\'' : []
+					else if isLower x && isUpper (head xs)
+						then (toUpper x) : '\'' : xs
+						else if isLower (head xs)
+							then x : (toUpper (head xs)) : '\'' : []
+							else x:xs
+				else if isLower x
+					then (toUpper x) : '\'' : '<' : xs ++ ['>']
+					else x : '<' : xs ++ ['>']
+
 --readRules
 readRules file = do
 	eof <- hIsEOF file
@@ -42,14 +75,20 @@ readRules file = do
 				else putStrLn ("Not simple rule: " ++ line)
 			readRules file
 
---isSimple
-isSimple :: Rule -> Bool
-isSimple r = 
-	if ((length (to r)) == 1) && (isLower ((to r) !! 0))
-		then True
-		else if ((length (to r)) == 2) && (isUpper ((to r) !! 0)) && (isUpper ((to r) !! 0))
-			then True
-			else False
+--
+annt :: Rule -> Rule
+annt r =
+	if isSimple r
+		then r
+		else Rule (from r) (lttn (to r))
+
+--addNewNonterminals
+--annt [] = []
+--annt (r:rs) = 
+--	if isSimple r
+--		then annt (rs)
+--		else annt (rs ++ (Rule (from r) (lttn (to r))))
+
 
 --read file
 rf file = do
@@ -60,4 +99,6 @@ rf file = do
 	putStrLn ("Nonterminals: " ++ show (tokenize ',' nonterminals))
 	putStrLn ("Terminals: " ++ show (tokenize ',' terminals))
 	putStrLn ("Starting symbol: " ++ show starting)
-	readRules f
+	linesList		<- fmap lines (readFile file)
+	putStrLn("Rules: " ++ show(drop 3 linesList))
+	putStrLn (show (map (annt) (map (parseRule) (drop 3 linesList))))
