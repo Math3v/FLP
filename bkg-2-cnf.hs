@@ -3,9 +3,13 @@ import Data.Char
 
 data Rule =
 	Rule
-		{ from :: Char 
+		{ from :: String 
 		, to :: String
 		} deriving Show
+
+--charToString
+charToString :: Char -> String
+charToString c = [c]
 
 --consume->
 consumeLeftArrow :: String -> String
@@ -17,7 +21,7 @@ consumeLeftArrow (x:xs) =
 
 --parseRule
 parseRule :: String -> Rule
-parseRule (x:xs) = Rule x (consumeLeftArrow xs)	
+parseRule (x:xs) = Rule (charToString x) (consumeLeftArrow xs)
 
 --tokenize
 tokenize delim "" = []
@@ -33,7 +37,9 @@ readRules file = do
 		then return ()
 		else do
 			line 	<- hGetLine file
-			putStrLn (show(parseRule line))
+			if isSimple (parseRule line)
+				then putStrLn ("Simple rule: " ++ line)
+				else putStrLn ("Not simple rule: " ++ line)
 			readRules file
 
 --isSimple
