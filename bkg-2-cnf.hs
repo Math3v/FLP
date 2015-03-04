@@ -63,6 +63,27 @@ lttn (x:xs) =
 					then (toUpper x) : '\'' : '<' : xs ++ ['>']
 					else x : '<' : xs ++ ['>']
 
+--wrapper which gets rule and generate rule
+--with two Ns on the right side
+annt :: Rule -> Rule
+annt r =
+	if isSimple r
+		then r
+		else Rule (from r) (lttn (to r))
+
+--find char in string
+findInString :: Int -> Char -> String -> Int
+findInString cnt c [] = -1
+findInString cnt c (x:xs) = 
+	if c == x
+		then cnt
+		else findInString (cnt + 1) c xs
+
+--get right side and return new nonterminal
+getLeft str =  snd (splitAt (findInString 0 '<' str) str)
+getRight str = fst (splitAt (findInString 1 '>' str) str)
+getNewN rule = (getLeft . getRight) (to rule)
+
 --readRules
 readRules file = do
 	eof <- hIsEOF file
@@ -75,21 +96,6 @@ readRules file = do
 				else putStrLn ("Not simple rule: " ++ line)
 			readRules file
 
---
-annt :: Rule -> Rule
-annt r =
-	if isSimple r
-		then r
-		else Rule (from r) (lttn (to r))
-
---addNewNonterminals
---annt [] = []
---annt (r:rs) = 
---	if isSimple r
---		then annt (rs)
---		else annt (rs ++ (Rule (from r) (lttn (to r))))
-
-
 --read file
 rf file = do
 	f 				<- openFile file ReadMode
@@ -101,4 +107,5 @@ rf file = do
 	putStrLn ("Starting symbol: " ++ show starting)
 	linesList		<- fmap lines (readFile file)
 	putStrLn("Rules: " ++ show(drop 3 linesList))
-	putStrLn (show (map (annt) (map (parseRule) (drop 3 linesList))))
+	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))))
+	--putStrLn (show (map (annt) (map (parseRule) (drop 3 linesList))))
