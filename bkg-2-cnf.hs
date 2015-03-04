@@ -84,6 +84,25 @@ getLeft str =  snd (splitAt (findInString 0 '<' str) str)
 getRight str = fst (splitAt (findInString 1 '>' str) str)
 getNewN rule = (getLeft . getRight) (to rule)
 
+--return the right beginning
+returnNonterminal :: Char -> String
+returnNonterminal c = 
+	if (isUpper c)
+		then (c : [])
+		else ((toUpper c) : "'")
+
+--two symbols to two nonterminals
+
+
+--this has to be implemented separately for length of 2
+--get new nonterminal and return rule
+--newNToRule :: String -> Rule
+--newNToRule str = 
+--	if ((length str) == 4) --4 = (2 + '<' and '>')
+--		then
+--
+--		else 
+
 --readRules
 readRules file = do
 	eof <- hIsEOF file
@@ -109,3 +128,5 @@ rf file = do
 	putStrLn("Rules: " ++ show(drop 3 linesList))
 	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))))
 	--putStrLn (show (map (annt) (map (parseRule) (drop 3 linesList))))
+
+	--concat two lists [] ++ []
