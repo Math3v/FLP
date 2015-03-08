@@ -161,5 +161,4 @@ rf file = do
 	putStrLn("Rules: " ++ show(drop 3 linesList))
 	--putStrLn (show ((tokenize ',' nonterminals) : (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))))
 	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))))
-	printAll (newNsToRs (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))) [])
-	--return
+	printAll (newNsToRs (filter (not . null) (map (getNewN . annt . parseRule) (drop 3 linesList))) [])
