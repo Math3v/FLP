@@ -1,6 +1,7 @@
 import System.IO
 import Data.Char
 import Data.List
+import Debug.Trace
 
 data NandRules = 
 	NandRules
@@ -103,6 +104,7 @@ twoSymbolsToTwoNonterminal (z:x:y:ys) = (returnNonterminal x) ++ (returnNontermi
 --this has to be implemented separately for length of 2
 --get new nonterminal and return rule
 newNToRule :: String -> Rule
+--newNToRule a | trace ("newNToRule " ++ show a) False = undefined
 newNToRule (x:y:ys) = 
 	if ((length (x:y:ys)) == 4) --4 = (2 + '<' and '>')
 		then
@@ -112,7 +114,15 @@ newNToRule (x:y:ys) =
 
 --newNToListOfRules
 newNToRs :: String -> [Rule] -> [Rule]
-newNToRs (s1:s2:ss) [] = newNToRs ('<' : ss) ((newNToRule (s1:s2:ss)) : [])
+--newNToRs a b | trace ("newNToRs " ++ show a ++ " " ++ show b) False = undefined
+newNToRs [] [] = error "Nothing to parse"
+newNToRs [] x = error "Nothing to parse"
+newNToRs (s1:s2:ss) [] = 
+	if (length (s1:s2:ss)) == 4 -- '<' + 2 + '>'
+		then
+			((newNToRule (s1:s2:ss)) : [])
+		else
+			newNToRs ('<' : ss) ((newNToRule (s1:s2:ss)) : [])
 newNToRs (s1:s2:ss) (x:xs) = 
 	if (length (s1:s2:ss)) == 4 -- '<' + 2 + '>'
 		then
@@ -120,9 +130,11 @@ newNToRs (s1:s2:ss) (x:xs) =
 		else
 			newNToRs ('<' : ss) ((newNToRule (s1:s2:ss)) : (x:xs))
 
---add new nonterminals
---addNew :: IO String -> String -> IO String
---addNew nonterminals new = 
+--array of new nonterminals to array of new rules
+newNsToRs :: [String] -> [Rule] -> [Rule]
+newNsToRs (n:ns) [] = newNsToRs (ns) (newNToRs (n) [])	--first call
+newNsToRs [] (x:xs) = (x:xs) --last call
+newNsToRs (n:ns) (r:rs) = newNsToRs (ns) (newNToRs (n) (r:rs))
 
 --readRules
 readRules file = do
@@ -147,7 +159,7 @@ rf file = do
 	putStrLn ("Starting symbol: " ++ show starting)
 	linesList		<- fmap lines (readFile file)
 	putStrLn("Rules: " ++ show(drop 3 linesList))
-	putStrLn (show ((tokenize ',' nonterminals) : (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))))
-	--putStrLn (show (map (annt) (map (parseRule) (drop 3 linesList))))
-
-	--concat two lists [] ++ []
+	--putStrLn (show ((tokenize ',' nonterminals) : (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))))
+	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))))
+	printAll (newNsToRs (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))) [])
+	--return
