@@ -92,16 +92,22 @@ returnNonterminal c =
 		else ((toUpper c) : "'")
 
 --two symbols to two nonterminals
-
+twoSymbolsToTwoNonterminal :: String -> String
+twoSymbolsToTwoNonterminal (z:x:y:ys) = (returnNonterminal x) ++ (returnNonterminal y) ++ []
 
 --this has to be implemented separately for length of 2
 --get new nonterminal and return rule
---newNToRule :: String -> Rule
---newNToRule str = 
---	if ((length str) == 4) --4 = (2 + '<' and '>')
---		then
---
---		else 
+newNToRule :: String -> Rule
+newNToRule (x:y:ys) = 
+	if ((length (x:y:ys)) == 4) --4 = (2 + '<' and '>')
+		then
+			Rule (x:y:ys) (twoSymbolsToTwoNonterminal (x:y:ys))
+		else 
+			Rule (x:y:ys) ((returnNonterminal y) ++ "<" ++ (ys))
+
+--add new nonterminals
+--addNew :: IO String -> String -> IO String
+--addNew nonterminals new = 
 
 --readRules
 readRules file = do
@@ -126,7 +132,7 @@ rf file = do
 	putStrLn ("Starting symbol: " ++ show starting)
 	linesList		<- fmap lines (readFile file)
 	putStrLn("Rules: " ++ show(drop 3 linesList))
-	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))))
+	putStrLn (show ((tokenize ',' nonterminals) : (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))))
 	--putStrLn (show (map (annt) (map (parseRule) (drop 3 linesList))))
 
 	--concat two lists [] ++ []
