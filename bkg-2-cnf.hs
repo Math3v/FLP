@@ -14,6 +14,11 @@ data Rule =
 		, to :: String
 		} deriving Show
 
+printAll xs = if null xs        -- If the list is empty
+    then return ()              -- then we're done, so we quit.
+    else do print (head xs)     -- Otherwise, print the first element
+            printAll (tail xs)  -- then print all the other elements.
+
 --charToString
 charToString :: Char -> String
 charToString c = [c]
@@ -104,6 +109,16 @@ newNToRule (x:y:ys) =
 			Rule (x:y:ys) (twoSymbolsToTwoNonterminal (x:y:ys))
 		else 
 			Rule (x:y:ys) ((returnNonterminal y) ++ "<" ++ (ys))
+
+--newNToListOfRules
+newNToRs :: String -> [Rule] -> [Rule]
+newNToRs (s1:s2:ss) [] = newNToRs ('<' : ss) ((newNToRule (s1:s2:ss)) : [])
+newNToRs (s1:s2:ss) (x:xs) = 
+	if (length (s1:s2:ss)) == 4 -- '<' + 2 + '>'
+		then
+			((x:xs) ++ ((newNToRule (s1:s2:ss)) : []))
+		else
+			newNToRs ('<' : ss) ((newNToRule (s1:s2:ss)) : (x:xs))
 
 --add new nonterminals
 --addNew :: IO String -> String -> IO String
