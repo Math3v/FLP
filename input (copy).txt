@@ -6,3 +6,5 @@ A->aAb
 A->ab
 B->cBd
 B->cd
+B->c
+B->d
