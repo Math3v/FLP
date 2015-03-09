@@ -48,11 +48,12 @@ isSimple :: Rule -> Bool
 isSimple r = 
 	if ((length (to r)) == 1) && (isLower ((to r) !! 0))
 		then True
-		else if ((length (to r)) == 2) && (isUpper ((to r) !! 0)) && (isUpper ((to r) !! 0))
+		else if ((length (to r)) == 2) && (isUpper ((to r) !! 0)) && (isUpper ((to r) !! 1))
 			then True
 			else False
 
 --leftToTwoNonterminals
+--this is actually RIGHT side to 2 Ns
 lttn :: String -> String
 lttn (x:xs) = 
 	if (length (x:xs)) == 1
@@ -64,7 +65,7 @@ lttn (x:xs) =
 						then (toUpper x) : '\'' : xs
 						else if isLower (head xs)
 							then x : (toUpper (head xs)) : '\'' : []
-							else x:xs
+							else x:xs ++ "\'"
 				else if isLower x
 					then (toUpper x) : '\'' : '<' : xs ++ ['>']
 					else x : '<' : xs ++ ['>']
@@ -136,6 +137,27 @@ newNsToRs (n:ns) [] = newNsToRs (ns) (newNToRs (n) [])	--first call
 newNsToRs [] (x:xs) = (x:xs) --last call
 newNsToRs (n:ns) (r:rs) = newNsToRs (ns) (newNToRs (n) (r:rs))
 
+--printSpecialFromString
+--get RIGHT side of rule and print new rules
+--printSpecialFromString :: String -> ()
+--printSpecialFromString a | trace ("printSpecialFromString " ++ show a) False = undefined
+printSpecialFromString [] = return ()
+printSpecialFromString (s1:s2:ss) = 
+	if s2 == '\''
+		then do
+			putStrLn ((s1 : s2 : []) ++ "->" ++ ((toLower s1) : []))
+			printSpecialFromString (ss)
+		else
+			printSpecialFromString (s2:ss)
+printSpecialFromString s = return () --for other cases
+
+--get all rules and print new rules A'->a
+--printSpecialRules :: [Rule] -> ()
+printSpecialRules [] = return ()
+printSpecialRules (r:rs) = do
+	printSpecialFromString (to r)
+	printSpecialRules (rs)
+
 --readRules
 readRules file = do
 	eof <- hIsEOF file
@@ -160,5 +182,6 @@ rf file = do
 	linesList		<- fmap lines (readFile file)
 	putStrLn("Rules: " ++ show(drop 3 linesList))
 	--putStrLn (show ((tokenize ',' nonterminals) : (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))))
-	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList))))))
-	printAll (newNsToRs (filter (not . null) (map (getNewN . annt . parseRule) (drop 3 linesList))) [])
+	printAll (map (annt . parseRule) (drop 3 linesList))
+	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))) --print new Ns
+	printAll (newNsToRs (filter (not . null) (map (getNewN . annt . parseRule) (drop 3 linesList))) []) --print all new rules from new Ns
