@@ -3,17 +3,24 @@ import Data.Char
 import Data.List
 import Debug.Trace
 
-data NandRules = 
-	NandRules
-		{ nonterminals :: String
-		, rules :: [Rule]
-		} deriving Show
-
 data Rule =
 	Rule
 		{ from :: String 
 		, to :: String
-		} deriving Show
+		}
+
+data CFG = CFG
+	{ nonterminals :: String
+	, terminals :: String
+	, starting :: Char
+	, rules :: [Rule]
+	}
+
+instance Show CFG where
+	show (CFG ns ts s rs) = ns ++ "\n" ++ ts ++ "\n" ++ (s:[]) ++ "\n" ++ show rs ++ "\n"
+
+instance Show Rule where
+	show (Rule from to) = "Rule " ++ from ++ "->" ++ to ++ "\n"
 
 printAll xs = if null xs        -- If the list is empty
     then return ()              -- then we're done, so we quit.
@@ -72,7 +79,7 @@ lttn (x:xs) =
 
 --wrapper which gets rule and generate rule
 --with two Ns on the right side
-annt :: Rule -> Rule
+--annt :: Rule -> Rule
 annt r =
 	if isSimple r
 		then r
@@ -185,3 +192,43 @@ rf file = do
 	printAll (map (annt . parseRule) (drop 3 linesList))
 	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))) --print new Ns
 	printAll (newNsToRs (filter (not . null) (map (getNewN . annt . parseRule) (drop 3 linesList))) []) --print all new rules from new Ns
+
+--convertGrammar cfg = do
+--	--rulesTwoNs <- (map (annt) (rules cfg))
+--	newNs <- filter (not . null) (map (getNewN) (map (annt) (rules cfg)))
+--	CFG (nonterminals cfg) (terminals cfg) (starting cfg) ((map annt (rules cfg)) ++ (newNsToRs newNs []))
+
+convertGrammar cfg = 
+	CFG newNs (terminals cfg) (starting cfg) newRules
+	where
+		newNs = (nonterminals cfg) ++ (filter (not . null) (map (getNewN) (map (annt) (rules cfg))))
+		newRules = map annt (rules cfg)
+
+convertGrammar _ = error "Bad grammar input"
+
+procLns :: [String] -> CFG
+procLns (ns:ts:start:rules) = 
+	if null rules 
+		then error "Rules are missing"
+		else CFG getNs getTs getStarting (map parseRule rules)
+	where
+		getNs = tokenize ',' ns
+		getTs = tokenize ',' ts
+		getStarting = head start
+procLns _ = error "Input file with bad syntax provided"
+
+getCFGrammar :: Handle -> IO CFG
+getCFGrammar hIn = do
+	contents <- hGetContents hIn
+	let lns = lines contents
+	let cfg = procLns lns
+	return cfg
+
+entry file = do
+	hInFile 	<- openFile file ReadMode
+	cfg 		<- getCFGrammar hInFile
+	--putStr (show cfg)
+	putStr( show (convertGrammar cfg))
+
+	hClose hInFile
+	return ()
