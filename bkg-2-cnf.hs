@@ -1,6 +1,6 @@
 import System.IO
 import Data.Char
-import Data.List
+import Data.List.Split
 import Debug.Trace
 
 data Rule =
@@ -10,14 +10,14 @@ data Rule =
 		}
 
 data CFG = CFG
-	{ nonterminals :: String
+	{ nonterminals :: [String]
 	, terminals :: String
 	, starting :: Char
 	, rules :: [Rule]
 	}
 
 instance Show CFG where
-	show (CFG ns ts s rs) = ns ++ "\n" ++ ts ++ "\n" ++ (s:[]) ++ "\n" ++ show rs ++ "\n"
+	show (CFG ns ts s rs) = show ns ++ "\n" ++ ts ++ "\n" ++ (s:[]) ++ "\n" ++ show rs ++ "\n"
 
 instance Show Rule where
 	show (Rule from to) = "Rule " ++ from ++ "->" ++ to ++ "\n"
@@ -193,6 +193,13 @@ rf file = do
 	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))) --print new Ns
 	printAll (newNsToRs (filter (not . null) (map (getNewN . annt . parseRule) (drop 3 linesList))) []) --print all new rules from new Ns
 
+beginWithL :: String -> Bool
+beginWithL (x:_) = 
+	if x == '<'
+		then True
+		else False
+beginWithL _ = False
+
 --convertGrammar cfg = do
 --	--rulesTwoNs <- (map (annt) (rules cfg))
 --	newNs <- filter (not . null) (map (getNewN) (map (annt) (rules cfg)))
@@ -202,7 +209,7 @@ convertGrammar cfg =
 	CFG newNs (terminals cfg) (starting cfg) newRules
 	where
 		newNs = (nonterminals cfg) ++ (filter (not . null) (map (getNewN) (map (annt) (rules cfg))))
-		newRules = map annt (rules cfg)
+		newRules = map annt (rules cfg) ++ (newNsToRs (filter (beginWithL) newNs) [])
 
 convertGrammar _ = error "Bad grammar input"
 
@@ -212,7 +219,7 @@ procLns (ns:ts:start:rules) =
 		then error "Rules are missing"
 		else CFG getNs getTs getStarting (map parseRule rules)
 	where
-		getNs = tokenize ',' ns
+		getNs = splitOn "," ns
 		getTs = tokenize ',' ts
 		getStarting = head start
 procLns _ = error "Input file with bad syntax provided"
