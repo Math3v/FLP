@@ -24,15 +24,15 @@ instance Show Rule where
 
 showRules :: [Rule] -> String -> String
 showRules [] acc = init acc
-showRules (r:rs) acc = showRules rs (show r ++ acc)
+showRules (r:rs) acc = showRules rs (acc ++ show r)
 
 showNs :: [String] -> String -> String
-showNs [] acc = init acc
-showNs (n:ns) acc = showNs ns (n ++ "," ++ acc)
+showNs [] acc = tail acc
+showNs (n:ns) acc = showNs ns (acc ++ "," ++ n)
 
 showTs :: String -> String -> String
 showTs [] acc = init acc
-showTs (t:ts) acc = showTs ts (t : ',' : acc)
+showTs (t:ts) acc = showTs ts (acc ++ (t : ","))
 
 --charToString
 charToString :: Char -> String
