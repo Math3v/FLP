@@ -25,6 +25,15 @@ instance Show CFG where
 instance Show Rule where
 	show (Rule from to) = "Rule " ++ from ++ "->" ++ to ++ "\n"
 
+showGrammarComplexRules cfg = (showNs (nonterminals cfg) []) ++ "\n" ++ (showTs (terminals cfg) []) ++ "\n" ++ ((starting cfg):[]) ++ "\n" ++ (showComplexRules (rules cfg) []) ++ "\n"
+
+showComplexRules :: [Rule] -> String -> String
+showComplexRules [] acc = init acc
+showComplexRules (r:rs) acc = 
+	if isSimple r
+		then showComplexRules rs acc
+		else showComplexRules rs (acc ++ show r)
+
 showRules :: [Rule] -> String -> String
 showRules [] acc = init acc
 showRules (r:rs) acc = showRules rs (acc ++ show r)
@@ -154,7 +163,7 @@ newNsToRs [] (x:xs) = (x:xs) --last call
 newNsToRs (n:ns) (r:rs) = newNsToRs (ns) (newNToRs (n) (r:rs))
 
 --readRules
-readRules file = do
+readRulesDummy file = do
 	eof <- hIsEOF file
 	if eof
 		then return ()
@@ -163,7 +172,7 @@ readRules file = do
 			if isSimple (parseRule line)
 				then putStrLn ("Simple rule: " ++ line)
 				else putStrLn ("Not simple rule: " ++ line)
-			readRules file
+			readRulesDummy file
 
 beginWithL :: String -> Bool
 beginWithL (x:_) = 
@@ -222,11 +231,10 @@ getCFGrammar hIn = do
 	let cfg = procLns lns
 	return cfg
 
-entry file = do
+convert file = do
 	hInFile 	<- openFile file ReadMode
 	cfg 		<- getCFGrammar hInFile
 	putStr( show ((addSpecialNs . convertGrammar) cfg))
-
 	hClose hInFile
 	return ()
 
@@ -250,6 +258,13 @@ readAndDumpGrammar file = do
 	hClose hInFile
 	return ()
 
+readAndDumpComplex file = do
+	hInFile <- openFile file ReadMode
+	cfg <- getCFGrammar hInFile
+	putStr (showGrammarComplexRules cfg)
+	hClose hInFile
+	return ()
+
 main :: IO ()
 main = do
 	args <- getArgs
@@ -259,4 +274,6 @@ main = do
 		then --file provided
 			case option of
 				Print -> readAndDumpGrammar file
+				PrintSimple -> readAndDumpComplex file
+				Convert -> convert file
 		else return () --file not provided
