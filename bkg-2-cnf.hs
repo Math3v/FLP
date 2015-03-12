@@ -205,13 +205,31 @@ beginWithL _ = False
 --	newNs <- filter (not . null) (map (getNewN) (map (annt) (rules cfg)))
 --	CFG (nonterminals cfg) (terminals cfg) (starting cfg) ((map annt (rules cfg)) ++ (newNsToRs newNs []))
 
+--get nonterminals ending with ' from 1 rule
+getSpecialFromR :: String -> [String] -> [String]
+--getSpecialFromR a acc | trace ("getSpecialFromR " ++ a) False = undefined
+getSpecialFromR [] acc = acc
+getSpecialFromR (e:s:ss) acc = 
+	if (s == '\'')
+		then getSpecialFromR (e:ss) ((e:"\'") : acc)
+		else getSpecialFromR (s:ss) acc
+getSpecialFromR s acc = acc
+
+--rules to list of nonterminals ending with '
+getSpecialNs :: [Rule] -> [String] -> [String]
+--getSpecialNs a acc | trace ("getSpecialNs " ++ show acc) False = undefined
+getSpecialNs [] acc = acc
+getSpecialNs (r:rs) [] =  getSpecialNs rs ((getSpecialFromR (to r) []) ++ [])
+getSpecialNs (r:rs) acc = getSpecialNs rs ((getSpecialFromR (to r) []) ++ acc)
+
+lastConversion cfg = 
+	CFG ((nonterminals cfg) ++ (filter (not . null) (getSpecialNs (rules cfg) []))) (terminals cfg) (starting cfg) (rules cfg)
+
 convertGrammar cfg = 
 	CFG newNs (terminals cfg) (starting cfg) newRules
 	where
 		newNs = (nonterminals cfg) ++ (filter (not . null) (map (getNewN) (map (annt) (rules cfg))))
 		newRules = map annt (rules cfg) ++ (newNsToRs (filter (beginWithL) newNs) [])
-
-convertGrammar _ = error "Bad grammar input"
 
 procLns :: [String] -> CFG
 procLns (ns:ts:start:rules) = 
@@ -235,7 +253,8 @@ entry file = do
 	hInFile 	<- openFile file ReadMode
 	cfg 		<- getCFGrammar hInFile
 	--putStr (show cfg)
-	putStr( show (convertGrammar cfg))
+	--putStr( show (convertGrammar cfg))
+	putStr( show ((lastConversion . convertGrammar) cfg))
 
 	hClose hInFile
 	return ()
