@@ -22,16 +22,6 @@ instance Show CFG where
 instance Show Rule where
 	show (Rule from to) = "Rule " ++ from ++ "->" ++ to ++ "\n"
 
-printAll xs = if null xs        -- If the list is empty
-    then return ()              -- then we're done, so we quit.
-    else do print (head xs)     -- Otherwise, print the first element
-            printAll (tail xs)  -- then print all the other elements.
-
-showAll xs = if null xs        -- If the list is empty
-    then return ()              -- then we're done, so we quit.
-    else do show (head xs)     -- Otherwise, print the first element
-            showAll (tail xs)  -- then print all the other elements.
-
 showRules :: [Rule] -> String -> String
 showRules [] acc = init acc
 showRules (r:rs) acc = showRules rs (show r ++ acc)
