@@ -76,10 +76,9 @@ isSimple r =
 			then True
 			else False
 
---leftToTwoNonterminals
---this is actually RIGHT side to 2 Ns
-lttn :: String -> String
-lttn (x:xs) = 
+--right side of tule to two Nonterminals
+rttn :: String -> String
+rttn (x:xs) = 
 	if (length (x:xs)) == 1
 		then x : '\'' : []
 		else if (length (x:xs)) == 2
@@ -96,11 +95,11 @@ lttn (x:xs) =
 
 --wrapper which gets rule and generate rule
 --with two Ns on the right side
---annt :: Rule -> Rule
+annt :: Rule -> Rule
 annt r =
 	if isSimple r
 		then r
-		else Rule (from r) (lttn (to r))
+		else Rule (from r) (rttn (to r))
 
 --find char in string
 findInString :: Int -> Char -> String -> Int
@@ -161,27 +160,6 @@ newNsToRs (n:ns) [] = newNsToRs (ns) (newNToRs (n) [])	--first call
 newNsToRs [] (x:xs) = (x:xs) --last call
 newNsToRs (n:ns) (r:rs) = newNsToRs (ns) (newNToRs (n) (r:rs))
 
---printSpecialFromString
---get RIGHT side of rule and print new rules
---printSpecialFromString :: String -> ()
---printSpecialFromString a | trace ("printSpecialFromString " ++ show a) False = undefined
-printSpecialFromString [] = return ()
-printSpecialFromString (s1:s2:ss) = 
-	if s2 == '\''
-		then do
-			putStrLn ((s1 : s2 : []) ++ "->" ++ ((toLower s1) : []))
-			printSpecialFromString (ss)
-		else
-			printSpecialFromString (s2:ss)
-printSpecialFromString s = return () --for other cases
-
---get all rules and print new rules A'->a
---printSpecialRules :: [Rule] -> ()
-printSpecialRules [] = return ()
-printSpecialRules (r:rs) = do
-	printSpecialFromString (to r)
-	printSpecialRules (rs)
-
 --readRules
 readRules file = do
 	eof <- hIsEOF file
@@ -194,33 +172,12 @@ readRules file = do
 				else putStrLn ("Not simple rule: " ++ line)
 			readRules file
 
---read file
-rf file = do
-	f 				<- openFile file ReadMode
-	nonterminals	<- hGetLine f
-	terminals		<- hGetLine f
-	starting		<- hGetLine f
-	putStrLn ("Nonterminals: " ++ show (tokenize ',' nonterminals))
-	putStrLn ("Terminals: " ++ show (tokenize ',' terminals))
-	putStrLn ("Starting symbol: " ++ show starting)
-	linesList		<- fmap lines (readFile file)
-	putStrLn("Rules: " ++ show(drop 3 linesList))
-	--putStrLn (show ((tokenize ',' nonterminals) : (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))))
-	printAll (map (annt . parseRule) (drop 3 linesList))
-	putStrLn (show (filter (not . null) (map (getNewN) (map (annt) (map (parseRule) (drop 3 linesList)))))) --print new Ns
-	printAll (newNsToRs (filter (not . null) (map (getNewN . annt . parseRule) (drop 3 linesList))) []) --print all new rules from new Ns
-
 beginWithL :: String -> Bool
 beginWithL (x:_) = 
 	if x == '<'
 		then True
 		else False
 beginWithL _ = False
-
---convertGrammar cfg = do
---	--rulesTwoNs <- (map (annt) (rules cfg))
---	newNs <- filter (not . null) (map (getNewN) (map (annt) (rules cfg)))
---	CFG (nonterminals cfg) (terminals cfg) (starting cfg) ((map annt (rules cfg)) ++ (newNsToRs newNs []))
 
 --get nonterminals ending with ' from 1 rule
 getSpecialFromR :: String -> [String] -> [String]
@@ -245,7 +202,7 @@ generateRules (s:ss) [] = generateRules ss  ((Rule s ((toLower (s !! 0)) : [])) 
 generateRules (s:ss) acc = generateRules ss ((Rule s ((toLower (s !! 0)) : [])) : acc)
 generateRules [] acc = acc
 
-lastConversion cfg = 
+addSpecialNs cfg = 
 	CFG ((nonterminals cfg) ++ (filter (not . null) (getSpecialNs (rules cfg) []))) (terminals cfg) (starting cfg) ((rules cfg) ++ generateRules (getSpecialNs (rules cfg) [] ) [])
 
 convertGrammar cfg = 
@@ -275,9 +232,7 @@ getCFGrammar hIn = do
 entry file = do
 	hInFile 	<- openFile file ReadMode
 	cfg 		<- getCFGrammar hInFile
-	--putStr (show cfg)
-	--putStr( show (convertGrammar cfg))
-	putStr( show ((lastConversion . convertGrammar) cfg))
+	putStr( show ((addSpecialNs . convertGrammar) cfg))
 
 	hClose hInFile
 	return ()
