@@ -217,11 +217,12 @@ procLns :: [String] -> CFG
 procLns (ns:ts:start:rules) = 
 	if null rules 
 		then error "Rules are missing"
-		else CFG getNs getTs getStarting (map parseRule rules)
+		else CFG getNs getTs getStarting getRules
 	where
 		getNs = splitOn "," ns
 		getTs = tokenize ',' ts
 		getStarting = head start
+		getRules = map parseRule rules
 procLns _ = error "Input file with bad syntax provided"
 
 getCFGrammar :: Handle -> IO CFG
@@ -231,11 +232,8 @@ getCFGrammar hIn = do
 	let cfg = procLns lns
 	return cfg
 
-convert file = do
-	hInFile 	<- openFile file ReadMode
-	cfg 		<- getCFGrammar hInFile
+convert cfg = do
 	putStr( show ((addSpecialNs . convertGrammar) cfg))
-	hClose hInFile
 	return ()
 
 procArgs :: [String] -> (Bool, Argument, String)
@@ -251,18 +249,12 @@ procArgs [x] --file not provided
 
 procArgs _ = error "Usage: bkg-2-cnf {-i | -1 | -2} [file]"
 
-readAndDumpGrammar file = do
-	hInFile <- openFile file ReadMode
-	cfg <- getCFGrammar hInFile
+readAndDumpGrammar cfg = do
 	putStr (show cfg)
-	hClose hInFile
 	return ()
 
-readAndDumpComplex file = do
-	hInFile <- openFile file ReadMode
-	cfg <- getCFGrammar hInFile
+readAndDumpComplex cfg = do
 	putStr (showGrammarComplexRules cfg)
-	hClose hInFile
 	return ()
 
 main :: IO ()
@@ -271,9 +263,17 @@ main = do
 	let (fileProvided, option, file) = procArgs args
 
 	if (fileProvided)
-		then --file provided
+		then do --file provided
+			hInFile <- openFile file ReadMode
+			cfg <- getCFGrammar hInFile
 			case option of
-				Print -> readAndDumpGrammar file
-				PrintSimple -> readAndDumpComplex file
-				Convert -> convert file
-		else return () --file not provided
+				Print -> readAndDumpGrammar cfg
+				PrintSimple -> readAndDumpComplex cfg
+				Convert -> convert cfg
+			hClose hInFile
+		else do --file not provided
+			cfg <- getCFGrammar stdin
+			case option of
+				Print -> readAndDumpGrammar cfg
+				PrintSimple -> readAndDumpComplex cfg
+				Convert -> convert cfg
