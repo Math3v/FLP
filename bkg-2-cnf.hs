@@ -17,7 +17,7 @@ data CFG = CFG
 	}
 
 instance Show CFG where
-	show (CFG ns ts s rs) = show ns ++ "\n" ++ ts ++ "\n" ++ (s:[]) ++ "\n" ++ show rs ++ "\n"
+	show (CFG ns ts s rs) = (showNs ns []) ++ "\n" ++ (showTs ts []) ++ "\n" ++ (s:[]) ++ "\n" ++ (showRules rs []) ++ "\n"
 
 instance Show Rule where
 	show (Rule from to) = "Rule " ++ from ++ "->" ++ to ++ "\n"
@@ -26,6 +26,23 @@ printAll xs = if null xs        -- If the list is empty
     then return ()              -- then we're done, so we quit.
     else do print (head xs)     -- Otherwise, print the first element
             printAll (tail xs)  -- then print all the other elements.
+
+showAll xs = if null xs        -- If the list is empty
+    then return ()              -- then we're done, so we quit.
+    else do show (head xs)     -- Otherwise, print the first element
+            showAll (tail xs)  -- then print all the other elements.
+
+showRules :: [Rule] -> String -> String
+showRules [] acc = init acc
+showRules (r:rs) acc = showRules rs (show r ++ acc)
+
+showNs :: [String] -> String -> String
+showNs [] acc = init acc
+showNs (n:ns) acc = showNs ns (n ++ "," ++ acc)
+
+showTs :: String -> String -> String
+showTs [] acc = init acc
+showTs (t:ts) acc = showTs ts (t : ',' : acc)
 
 --charToString
 charToString :: Char -> String
@@ -222,8 +239,14 @@ getSpecialNs [] acc = acc
 getSpecialNs (r:rs) [] =  getSpecialNs rs ((getSpecialFromR (to r) []) ++ [])
 getSpecialNs (r:rs) acc = getSpecialNs rs ((getSpecialFromR (to r) []) ++ acc)
 
+--generate new rules from special Ns
+generateRules :: [String] -> [Rule] -> [Rule]
+generateRules (s:ss) [] = generateRules ss  ((Rule s ((toLower (s !! 0)) : [])) : [])
+generateRules (s:ss) acc = generateRules ss ((Rule s ((toLower (s !! 0)) : [])) : acc)
+generateRules [] acc = acc
+
 lastConversion cfg = 
-	CFG ((nonterminals cfg) ++ (filter (not . null) (getSpecialNs (rules cfg) []))) (terminals cfg) (starting cfg) (rules cfg)
+	CFG ((nonterminals cfg) ++ (filter (not . null) (getSpecialNs (rules cfg) []))) (terminals cfg) (starting cfg) ((rules cfg) ++ generateRules (getSpecialNs (rules cfg) [] ) [])
 
 convertGrammar cfg = 
 	CFG newNs (terminals cfg) (starting cfg) newRules
