@@ -1,7 +1,10 @@
 import System.IO
+import System.Environment
 import Data.Char
 import Data.List.Split
 import Debug.Trace
+
+data Argument = Print | PrintSimple | Convert deriving (Enum)
 
 data Rule =
 	Rule
@@ -226,3 +229,34 @@ entry file = do
 
 	hClose hInFile
 	return ()
+
+procArgs :: [String] -> (Bool, Argument, String)
+procArgs [x,y] --file provided
+	| (x == "-i") = (True, Print, y)
+	| (x == "-1") = (True, PrintSimple, y)
+	| (x == "-2") = (True, Convert, y)
+
+procArgs [x] --file not provided
+	| (x == "-i") = (False, Print, "")
+	| (x == "-1") = (False, PrintSimple, "")
+	| (x == "-2") = (False, Convert, "")
+
+procArgs _ = error "Usage: bkg-2-cnf {-i | -1 | -2} [file]"
+
+readAndDumpGrammar file = do
+	hInFile <- openFile file ReadMode
+	cfg <- getCFGrammar hInFile
+	putStr (show cfg)
+	hClose hInFile
+	return ()
+
+main :: IO ()
+main = do
+	args <- getArgs
+	let (fileProvided, option, file) = procArgs args
+
+	if (fileProvided)
+		then --file provided
+			case option of
+				Print -> readAndDumpGrammar file
+		else return () --file not provided
