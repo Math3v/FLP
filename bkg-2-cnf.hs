@@ -184,7 +184,7 @@ isSimple r =
 		then True
 		else False
 
---get nonterminal and return N_A for it
+--get nonterminal and return NA for it
 createNA :: Char -> [Rule] -> String
 createNA n rls = cna n rls (n : [])
 	where
@@ -192,22 +192,53 @@ createNA n rls = cna n rls (n : [])
 		cna n (r:rs) acc = if isSimple r && (((from r) !! 0) `elem` acc) && (((to r) !! 0) `notElem` acc)
 			then cna n rs (((to r) !! 0) : acc)
 			else cna n rs acc
-		cna n [] acc = acc
+		cna n [] acc = reverse acc
 
 --get nonterminals and construct NAs for all of them
-createNAs :: [String] -> [Rule] -> [[String]]
-createNAs ns rls = cnas ns rls [[]]
+createNAs :: [String] -> [Rule] -> [String]
+createNAs ns rls = cnas ns rls []
 	where
-		cnas :: [String] -> [Rule] -> [[String]] -> [[String]]
-		cnas (n:ns) rls [] = cnas ns rls (((createNA (n !! 0) rls) : []) : [])
-		cnas (n:ns) rls acc = cnas ns rls (((createNA (n !! 0) rls) : []) : acc)
-		cnas [] rls acc = acc
+		cnas :: [String] -> [Rule] -> [String] -> [String]
+		cnas (n:ns) rls [] = cnas ns rls ((createNA (n !! 0) rls) : [])
+		cnas (n:ns) rls acc = cnas ns rls ((createNA (n !! 0) rls) : acc)
+		cnas [] rls acc = reverse acc
+
+--getNewRs, iterate througs nas
+getNewRs :: Rule -> [String] -> [Rule] -> [Rule]
+--getNewRs a b c | trace ("gnrs " ++ show a ++ " " ++ show b ++ " " ++ show c) False = undefined
+getNewRs r (n:nas) [] = 
+	if ((from r) !! 0) `elem` n
+		then getNewRs r (nas) ((Rule ((n !! 0) : []) (to r)) : [])
+		else getNewRs r (nas) [] --maybe not needed
+getNewRs r (n:nas) acc = 
+	if ((from r) !! 0) `elem` n
+		then getNewRs r (nas) ((Rule ((n !! 0) : []) (to r)) : acc)
+		else getNewRs r (nas) acc --maybe not needed
+getNewRs r [] acc = acc
+--getNewRs r _ _ = []
+
+--rules, NAs, return new rules
+deleteSimpleRules :: [Rule] -> [String] -> [Rule]
+--deleteSimpleRules a b | trace ("dsrs " ++ show a ++ " " ++ show b) False = undefined
+deleteSimpleRules rls nas = dsr rls nas []
+	where
+		dsr (r:rls) nas [] = 
+			if isSimple r
+				then dsr (rls) nas []
+				else dsr (rls) nas (getNewRs r nas [])
+		dsr (r:rls) nas acc = 
+			if isSimple r
+				then dsr (rls) nas acc
+				else dsr (rls) nas (acc ++ (getNewRs r nas []))
+		dsr [] nas acc = acc
 
 --Testing Algorithm 4.5
 t45 file = do 
 	hInFile <- openFile file ReadMode
 	cfg <- getCFGrammar hInFile
-	putStrLn(show(createNA (((nonterminals cfg) !! 3) !! 0) (rules cfg)))
+	--putStrLn(show(createNA (((nonterminals cfg) !! 3) !! 0) (rules cfg)))
+	--putStrLn(show (createNAs (nonterminals cfg) (rules cfg)))
+	putStrLn(show (deleteSimpleRules (rules cfg) (createNAs (nonterminals cfg) (rules cfg))))
 
 beginWithL :: String -> Bool
 beginWithL (x:_) = 
