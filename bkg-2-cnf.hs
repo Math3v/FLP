@@ -350,6 +350,5 @@ main = do
 
 {-
 	TODOS:
-		* Ignore rules of type S->epsilon
-		* a becomes a', not A'	
+		* a becomes a', not A'?	
 }
