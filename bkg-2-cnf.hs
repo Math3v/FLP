@@ -82,14 +82,18 @@ rttn (x:xs) =
 		then x : '\'' : []
 		else if (length (x:xs)) == 2
 				then if isLower x && isLower (head xs)
-					then (toUpper x) : '\'' : (toUpper (head xs)) : '\'' : []
+					--then (toUpper x) : '\'' : (toUpper (head xs)) : '\'' : []
+					then x : '\'' : ((head xs)) : '\'' : []
 					else if isLower x && isUpper (head xs)
-						then (toUpper x) : '\'' : xs
+						--then (toUpper x) : '\'' : xs
+						then x : '\'' : xs
 						else if isLower (head xs)
-							then x : (toUpper (head xs)) : '\'' : []
+							--then x : (toUpper (head xs)) : '\'' : []
+							then x : (head xs) : '\'' : []
 							else x:xs ++ "\'"
 				else if isLower x
-					then (toUpper x) : '\'' : '<' : xs ++ ['>']
+					--then (toUpper x) : '\'' : '<' : xs ++ ['>']
+					then x : '\'' : '<' : xs ++ ['>']
 					else x : '<' : xs ++ ['>']
 
 --wrapper which gets rule and generate rule
@@ -118,7 +122,8 @@ returnNonterminal :: Char -> String
 returnNonterminal c = 
 	if (isUpper c)
 		then (c : [])
-		else ((toUpper c) : "'")
+		--else ((toUpper c) : "'")
+		else (c : "'")
 
 --two symbols to two nonterminals
 twoSymbolsToTwoNonterminal :: String -> String
@@ -347,8 +352,3 @@ main = do
 				Print -> readAndDumpGrammar cfg
 				PrintSimple -> readAndDumpComplex cfg
 				Convert -> convert cfg
-
-{-
-	TODOS:
-		* a becomes a', not A'?	
-}
