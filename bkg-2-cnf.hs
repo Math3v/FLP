@@ -30,7 +30,7 @@ showGrammarComplexRules cfg = (showNs (nonterminals cfg) []) ++ "\n" ++ (showTs 
 showComplexRules :: [Rule] -> String -> String
 showComplexRules [] acc = init acc
 showComplexRules (r:rs) acc = 
-	if isSimple r
+	if willStay r
 		then showComplexRules rs acc
 		else showComplexRules rs (acc ++ show r)
 
@@ -60,6 +60,7 @@ consumeLeftArrow (x:xs) =
 
 --parseRule
 parseRule :: String -> Rule
+--parseRule a | trace ("parseRule " ++ show a) False = undefined
 parseRule (x:xs) = Rule (charToString x) (consumeLeftArrow xs)
 
 --tokenize
@@ -69,9 +70,9 @@ tokenize delim (x:xs) =
 	then tokenize delim xs
 	else x : tokenize delim xs
 
---isSimple
-isSimple :: Rule -> Bool
-isSimple r = 
+--willStay
+willStay :: Rule -> Bool
+willStay r = 
 	if ((length (to r)) == 1) && (isLower ((to r) !! 0))
 		then True
 		else if ((length (to r)) == 2) && (isUpper ((to r) !! 0)) && (isUpper ((to r) !! 1))
@@ -99,7 +100,7 @@ rttn (x:xs) =
 --with two Ns on the right side
 annt :: Rule -> Rule
 annt r =
-	if isSimple r
+	if willStay r
 		then r
 		else Rule (from r) (rttn (to r))
 
@@ -169,10 +170,44 @@ readRulesDummy file = do
 		then return ()
 		else do
 			line 	<- hGetLine file
-			if isSimple (parseRule line)
+			if willStay (parseRule line)
 				then putStrLn ("Simple rule: " ++ line)
 				else putStrLn ("Not simple rule: " ++ line)
 			readRulesDummy file
+
+--Algorithm 4.5
+--Simple are rules of type A->B
+isSimple :: Rule -> Bool
+isSimple r = 
+	if (length (from r) == 1 && isUpper((from r) !! 0))
+		&& (length (to r) == 1 && isUpper((to r) !! 0))
+		then True
+		else False
+
+--get nonterminal and return N_A for it
+createNA :: Char -> [Rule] -> String
+createNA n rls = cna n rls (n : [])
+	where
+		cna :: Char -> [Rule] -> String -> String
+		cna n (r:rs) acc = if isSimple r && (((from r) !! 0) `elem` acc) && (((to r) !! 0) `notElem` acc)
+			then cna n rs (((to r) !! 0) : acc)
+			else cna n rs acc
+		cna n [] acc = acc
+
+--get nonterminals and construct NAs for all of them
+createNAs :: [String] -> [Rule] -> [[String]]
+createNAs ns rls = cnas ns rls [[]]
+	where
+		cnas :: [String] -> [Rule] -> [[String]] -> [[String]]
+		cnas (n:ns) rls [] = cnas ns rls (((createNA (n !! 0) rls) : []) : [])
+		cnas (n:ns) rls acc = cnas ns rls (((createNA (n !! 0) rls) : []) : acc)
+		cnas [] rls acc = acc
+
+--Testing Algorithm 4.5
+t45 file = do 
+	hInFile <- openFile file ReadMode
+	cfg <- getCFGrammar hInFile
+	putStrLn(show(createNA (((nonterminals cfg) !! 3) !! 0) (rules cfg)))
 
 beginWithL :: String -> Bool
 beginWithL (x:_) = 
@@ -222,7 +257,7 @@ procLns (ns:ts:start:rules) =
 		getNs = splitOn "," ns
 		getTs = tokenize ',' ts
 		getStarting = head start
-		getRules = map parseRule rules
+		getRules = map parseRule (filter (\x -> length x > 0) rules)
 procLns _ = error "Input file with bad syntax provided"
 
 getCFGrammar :: Handle -> IO CFG

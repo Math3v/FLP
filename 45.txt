@@ -1,0 +1,12 @@
+A,B,C,D
+a,b,c
+A
+A->B
+A->a
+A->b
+A->C
+B->c
+B->C
+C->c
+C->D
+
