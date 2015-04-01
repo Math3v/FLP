@@ -3,6 +3,7 @@ import System.Environment
 import Data.Char
 import Data.List.Split
 import Debug.Trace
+import Data.List
 
 data Argument = Print | PrintSimple | Convert deriving (Enum)
 
@@ -25,14 +26,9 @@ instance Show CFG where
 instance Show Rule where
 	show (Rule from to) = "Rule " ++ from ++ "->" ++ to ++ "\n"
 
-showGrammarComplexRules cfg = (showNs (nonterminals cfg) []) ++ "\n" ++ (showTs (terminals cfg) []) ++ "\n" ++ ((starting cfg):[]) ++ "\n" ++ (showComplexRules (rules cfg) []) ++ "\n"
+showGrammarComplexRules cfg = (showNs (nonterminals cfg) []) ++ "\n" ++ (showTs (terminals cfg) []) ++ "\n" ++ ((starting cfg):[]) ++ "\n" ++ (showComplexRules cfg) ++ "\n"
 
-showComplexRules :: [Rule] -> String -> String
-showComplexRules [] acc = init acc
-showComplexRules (r:rs) acc = 
-	if willStay r
-		then showComplexRules rs acc
-		else showComplexRules rs (acc ++ show r)
+showComplexRules cfg = showRules (deleteSimpleRules (rules cfg) (createNAs (nonterminals cfg) (rules cfg))) []
 
 showRules :: [Rule] -> String -> String
 showRules [] acc = init acc
@@ -214,7 +210,7 @@ getNewRs r (n:nas) acc =
 	if ((from r) !! 0) `elem` n
 		then getNewRs r (nas) ((Rule ((n !! 0) : []) (to r)) : acc)
 		else getNewRs r (nas) acc --maybe not needed
-getNewRs r [] acc = acc
+getNewRs r [] acc = reverse acc
 --getNewRs r _ _ = []
 
 --rules, NAs, return new rules
@@ -270,8 +266,16 @@ generateRules (s:ss) [] = generateRules ss  ((Rule s ((toLower (s !! 0)) : [])) 
 generateRules (s:ss) acc = generateRules ss ((Rule s ((toLower (s !! 0)) : [])) : acc)
 generateRules [] acc = acc
 
+compareRules r1 r2 = 
+	if ((from r1) == (from r2)) && ((to r1) == (to r2))
+		then True
+		else False
+
+deleteSimpleRulesFromGrammar cfg = 
+	CFG (nonterminals cfg) (terminals cfg) (starting cfg) (deleteSimpleRules (rules cfg) (createNAs (nonterminals cfg) (rules cfg)))
+
 addSpecialNs cfg = 
-	CFG ((nonterminals cfg) ++ (filter (not . null) (getSpecialNs (rules cfg) []))) (terminals cfg) (starting cfg) ((rules cfg) ++ generateRules (getSpecialNs (rules cfg) [] ) [])
+	CFG (nub((nonterminals cfg) ++ (filter (not . null) (getSpecialNs (rules cfg) [])))) (terminals cfg) (starting cfg) (nubBy compareRules ((rules cfg) ++ generateRules (getSpecialNs (rules cfg) [] ) []))
 
 convertGrammar cfg = 
 	CFG newNs (terminals cfg) (starting cfg) newRules
@@ -299,7 +303,7 @@ getCFGrammar hIn = do
 	return cfg
 
 convert cfg = do
-	putStr( show ((addSpecialNs . convertGrammar) cfg))
+	putStr( show ((addSpecialNs . convertGrammar . deleteSimpleRulesFromGrammar) cfg))
 	return ()
 
 procArgs :: [String] -> (Bool, Argument, String)
@@ -343,3 +347,9 @@ main = do
 				Print -> readAndDumpGrammar cfg
 				PrintSimple -> readAndDumpComplex cfg
 				Convert -> convert cfg
+
+{-
+	TODOS:
+		* Ignore rules of type S->epsilon
+		* a becomes a', not A'	
+}
