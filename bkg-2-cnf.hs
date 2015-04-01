@@ -1,3 +1,14 @@
+{-
+
+	FLP Assignment No. 1
+	Context Free Grammar to Chomsky Normal Form
+	bkg-2-cnf.hs
+	Matej Minarik (xminar29)
+
+	ghc --make -o bkg-2-cnf bkg-2-cnf.hs
+
+-}
+
 import System.IO
 import System.Environment
 import Data.Char
