@@ -171,9 +171,11 @@ newNToRs (s1:s2:ss) (x:xs) =
 
 --array of new nonterminals to array of new rules
 newNsToRs :: [String] -> [Rule] -> [Rule]
+--newNsToRs a b | trace ("newNsToRs " ++ show a ++ " " ++ show b) False = undefined
 newNsToRs (n:ns) [] = newNsToRs (ns) (newNToRs (n) [])	--first call
 newNsToRs [] (x:xs) = (x:xs) --last call
 newNsToRs (n:ns) (r:rs) = newNsToRs (ns) (newNToRs (n) (r:rs))
+newNsToRs [] [] = []
 
 --readRules
 readRulesDummy file = do
