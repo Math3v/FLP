@@ -16,8 +16,10 @@ import Data.List.Split
 import Debug.Trace
 import Data.List
 
+-- Input options
 data Argument = Print | PrintSimple | Convert deriving (Enum)
 
+-- Context-free grammar representation
 data Rule =
 	Rule
 		{ from :: String 
@@ -31,6 +33,8 @@ data CFG = CFG
 	, rules :: [Rule]
 	}
 
+
+-- Output functions
 instance Show CFG where
 	show (CFG ns ts s rs) = (showNs ns []) ++ "\n" ++ (showTs ts []) ++ "\n" ++ (s:[]) ++ "\n" ++ (showRules rs []) ++ "\n"
 
@@ -57,7 +61,7 @@ showTs (t:ts) acc = showTs ts (acc ++ (t : ","))
 charToString :: Char -> String
 charToString c = [c]
 
---consume->
+--consume '->' string
 consumeLeftArrow :: String -> String
 consumeLeftArrow [] = []
 consumeLeftArrow (x:xs) = 
@@ -77,7 +81,7 @@ tokenize delim (x:xs) =
 	then tokenize delim xs
 	else x : tokenize delim xs
 
---willStay
+--willStay - if Rule will stay in output grammar
 willStay :: Rule -> Bool
 willStay r = 
 	if ((length (to r)) == 1) && (isLower ((to r) !! 0))
@@ -301,6 +305,7 @@ convertGrammar cfg =
 		newNs = (nonterminals cfg) ++ (filter (not . null) (map (getNewN) (map (annt) (rules cfg))))
 		newRules = map annt (rules cfg) ++ (newNsToRs (filter (beginWithL) newNs) [])
 
+-- Process lines of file or stdin and return internal representation of CFG
 procLns :: [String] -> CFG
 procLns (ns:ts:start:rules) = 
 	if null rules 
@@ -313,6 +318,7 @@ procLns (ns:ts:start:rules) =
 		getRules = map parseRule (filter (\x -> length x > 0) rules)
 procLns _ = error "Input file with bad syntax provided"
 
+-- Input handle (file / stdin) return internal representation of CFG
 getCFGrammar :: Handle -> IO CFG
 getCFGrammar hIn = do
 	contents <- hGetContents hIn
@@ -324,6 +330,7 @@ convert cfg = do
 	putStr( show ((addSpecialNs . convertGrammar . deleteSimpleRulesFromGrammar) cfg))
 	return ()
 
+-- Process program arguments
 procArgs :: [String] -> (Bool, Argument, String)
 procArgs [x,y] --file provided
 	| (x == "-i") = (True, Print, y)
