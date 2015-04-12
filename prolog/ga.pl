@@ -1,7 +1,7 @@
-% FLP Assignment No. 2
-% Genetic Algorithm
-% ga.pl
-% Matej Minarik (XMINAR29)
+% Subject:	FLP Assignment No. 2
+% Purpose:	Genetic Algorithm
+% File:		ga.pl
+% Author:	Matej Minarik (XMINAR29)
 
 % DEBUG: trace. debug.
 % Debugging topics:
