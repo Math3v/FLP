@@ -26,11 +26,11 @@ l :- write('\n').
 % P2 		Parent 2
 % CPt 		Crossing point
 
-chromo(0, [0,0,1,0,1,0,1,1], _, _, _, _, _).
-chromo(1, [0,1,0,0,0,1,1,1], _, _, _, _, _).
+chromo(0, [0,0,1,0,1,0,1,1,0,0], _, _, _, _, _).
+%chromo(1, [0,1,0,0,0,1,1,1,0,1], _, _, _, _, _).
 
 % Generate unique identifier
-uid(2).
+uid(0).
 next_uid(X) :- uid(Y), 
 			X is Y + 1,
 			retract(uid(Y)),
@@ -86,9 +86,12 @@ cross(P1, P2, Chld1, Chld2, CPt):-
 % Calculate fitness function
 % Schwefel function
 fitness(Value,Fitness):-
-	assertion(Value > -500),
-	assertion(Value < 500),
-	Abs is abs(Value),
+	(Value > 1000 ->
+	Val is 500;
+	Val is Value - 500),
+	assertion(Val >= -500),
+	assertion(Val =< 500),
+	Abs is abs(Val),
 	Sqr is sqrt(Abs),
 	Sin is sin(Sqr),
 	Mul is Sin * Value,
@@ -111,8 +114,8 @@ generate(N):-
 	next_uid(Id1),
 	next_uid(Id2),
 	crossing_point(CPt),
-	gen_chromo(Ch1, 8),
-	gen_chromo(Ch2, 8),
+	gen_chromo(Ch1, 10),
+	gen_chromo(Ch2, 10),
 	chromo_to_num(Ch1, Val1),
 	chromo_to_num(Ch2, Val2),
 	fitness(Val1, Fit1),
