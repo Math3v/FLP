@@ -92,6 +92,16 @@ fitness(Value,Fitness):-
 	Mul is Sin * Value,
 	Fitness is 418.9829 - Mul.
 
+% Generate chromosome
+gen_chromo([], 0).
+gen_chromo([H|T], N):-
+	(maybe ->
+		H is 1 
+		;
+		H is 0
+	),
+	N1 is N - 1,
+	gen_chromo(T, N1).
 % Testing evolve function
 evolve:-
 	crossing_point(Cpt),
