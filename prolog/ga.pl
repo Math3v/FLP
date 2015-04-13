@@ -79,3 +79,14 @@ cross(P1, P2, Chld1, Chld2, CPt):-
 	split(P2, FP2, BP2, CPt),
 	append(FP1, BP2, Chld1),
 	append(FP2, BP1, Chld2).
+
+% Calculate fitness function
+% Schwefel function
+fitness(Value,Fitness):-
+	assertion(Value > -500),
+	assertion(Value < 500),
+	Abs is abs(Value),
+	Sqr is sqrt(Abs),
+	Sin is sin(Sqr),
+	Mul is Sin * Value,
+	Fitness is 418.9829 - Mul.
