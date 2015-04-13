@@ -4,14 +4,15 @@
 % Author:	Matej Minarik (XMINAR29)
 
 % DEBUG: trace. debug.
-% Debugging topics:
+% Debugging topics: List by list_debug_topics.
 % chtonum - Chromosome to number
+% evolve - Evolution
 
 % Dynamic clauses
 :- dynamic uid/1.
 
 % Utils
-build :- reconsult('ga.pl').
+b :- reconsult('ga.pl').
 s :- write(' ').
 l :- write('\n').
 
@@ -24,8 +25,8 @@ l :- write('\n').
 % P2 		Parent 2
 % CPt 		Crossing point
 
-chromo(0, [0,0,1,0,1,0,1,1,1,0,1], _, _, _, _, _).
-chromo(1, [0,1,0,0,0,1,1,1,1,0,0], _, _, _, _, _).
+chromo(0, [0,0,1,0,1,0,1,1,1,1], _, _, _, _, _).
+chromo(1, [0,1,0,0,0,1,1,1,1,0], _, _, _, _, _).
 
 % Generate unique identifier
 uid(0).
@@ -90,3 +91,25 @@ fitness(Value,Fitness):-
 	Sin is sin(Sqr),
 	Mul is Sin * Value,
 	Fitness is 418.9829 - Mul.
+
+% Testing evolve function
+evolve:-
+	crossing_point(Cpt),
+	chromo(0, Ch1, _, _, _, _, _),
+	chromo(1, Ch2, _, _, _, _, _),
+	chromo_to_num(Ch1, Val1),
+	chromo_to_num(Ch2, Val2),
+	fitness(Val1, Fit1),
+	fitness(Val2, Fit2),
+	cross(Ch1, Ch2, Chld1, Chld2, Cpt),
+	(
+	debugging(evolve) -> 
+	write('Crossing point: '), write(Cpt), l,
+	write('Value 1: '), write(Val1), l,
+	write('Value 2: '), write(Val2), l,
+	write('Fitness 1: '), write(Fit1), l,
+	write('Fitness 2: '), write(Fit2), l,
+	write('Child 1: '), write(Chld1), l,
+	write('Child 2: '), write(Chld2), l;
+	true
+	).
