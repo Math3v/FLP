@@ -10,6 +10,7 @@
 
 % Dynamic clauses
 :- dynamic uid/1.
+:- dynamic chromo/7.
 
 % Utils
 b :- reconsult('ga.pl').
@@ -25,11 +26,11 @@ l :- write('\n').
 % P2 		Parent 2
 % CPt 		Crossing point
 
-chromo(0, [0,0,1,0,1,0,1,1,1,1], _, _, _, _, _).
-chromo(1, [0,1,0,0,0,1,1,1,1,0], _, _, _, _, _).
+chromo(0, [0,0,1,0,1,0,1,1], _, _, _, _, _).
+chromo(1, [0,1,0,0,0,1,1,1], _, _, _, _, _).
 
 % Generate unique identifier
-uid(0).
+uid(2).
 next_uid(X) :- uid(Y), 
 			X is Y + 1,
 			retract(uid(Y)),
@@ -102,6 +103,24 @@ gen_chromo([H|T], N):-
 	),
 	N1 is N - 1,
 	gen_chromo(T, N1).
+
+% Generate initial population
+generate(0).
+generate(N):-
+	next_uid(Id1),
+	next_uid(Id2),
+	crossing_point(CPt),
+	gen_chromo(Ch1, 8),
+	gen_chromo(Ch2, 8),
+	chromo_to_num(Ch1, Val1),
+	chromo_to_num(Ch2, Val2),
+	fitness(Val1, Fit1),
+	fitness(Val2, Fit2),
+	asserta(chromo(Id1,Ch1,Val1,Fit1,_,_,CPt)),
+	asserta(chromo(Id2,Ch2,Val2,Fit2,_,_,CPt)),
+	N1 is N - 1,
+	generate(N1).
+
 % Testing evolve function
 evolve:-
 	crossing_point(Cpt),
