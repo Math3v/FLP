@@ -76,6 +76,7 @@ split([H|T],[H|Front],Back,Loci):-
 	split(T,Front,Back,Loci1).
 
 % Crossing
+cross(P1, P2, P1, P2, 0).
 cross(P1, P2, Chld1, Chld2, CPt):-
 	split(P1, FP1, BP1, CPt),
 	split(P2, FP2, BP2, CPt),
