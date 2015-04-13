@@ -24,7 +24,8 @@ l :- write('\n').
 % P2 		Parent 2
 % CPt 		Crossing point
 
-%chromo(_, [0,0,1,0], _, _, _, _, _).
+chromo(0, [0,0,1,0,1,0,1,1,1,0,1], _, _, _, _, _).
+chromo(1, [0,1,0,0,0,1,1,1,1,0,0], _, _, _, _, _).
 
 % Generate unique identifier
 uid(0).
