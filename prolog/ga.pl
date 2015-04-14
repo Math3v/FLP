@@ -100,9 +100,20 @@ fitness(Value,Fitness):-
 	Fitness is 418.9829 - Mul.
 
 % Calculate fitness of population
-popfit(Sum):-
+% Note: generate random between min and max fitness
+%		select closest larger chromosome to generated
+%		that will be selection of parents
+% THIS IS BAD, because all have the same probability!!!
+wheel(Rand):-
 	findall(X, chromo(_,_,_,X,_,_,_), Xs),
-	sumlist(Xs, Sum).
+	max_member(Max, Xs),
+	min_member(Min, Xs),
+	random(Min, Max, Rand).
+
+return_closest_fitness(Rand, Fitness):-
+	findall(X, chromo(_,_,_,X,_,_,_), Xs),
+	include(<(Rand), Xs, Greater),
+	nth0(0, Greater, Fitness).
 
 % Generate chromosome
 gen_chromo(Chromo):-
