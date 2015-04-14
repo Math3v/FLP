@@ -191,72 +191,33 @@ generate(N):-
 	N1 is N - 1,
 	generate(N1).
 
-% Testing evolve function
-tevolve:-
-	crossing_point(Cpt),
-	chromo(0, Ch1, _, _, _, _, _),
-	chromo(1, Ch2, _, _, _, _, _),
-	chromo_to_num(Ch1, Val1),
-	chromo_to_num(Ch2, Val2),
-	fitness(Val1, Fit1),
-	fitness(Val2, Fit2),
-	cross(Ch1, Ch2, Chld1, Chld2, Cpt),
-	(
-	debugging(evolve) -> 
-	write('Crossing point: '), write(Cpt), l,
-	write('Value 1: '), write(Val1), l,
-	write('Value 2: '), write(Val2), l,
-	write('Fitness 1: '), write(Fit1), l,
-	write('Fitness 2: '), write(Fit2), l,
-	write('Child 1: '), write(Chld1), l,
-	write('Child 2: '), write(Chld2), l;
-	true
-	).
-
-%
-evolve:-
+% Evolve
+evolve(0).
+evolve(N):-
 	crossing_point(CPt),
-	(write('BBB'), l),
 	selection(Uid1, Uid2),
-	(write('BBB'), l),
 	chromo(Uid1, Ch1, _, Fit1, _, _, _),
 	chromo(Uid2, Ch2, _, Fit2, _, _, _),
-	(write('BBB'), l),
 	cross(Ch1, Ch2, Chld1, Chld2, CPt),
-	(write('BBB'), l),
 	chromo_to_num(Chld1, ChldVal1),
 	chromo_to_num(Chld2, ChldVal2),
-	(write('Value 1 '), write(ChldVal1), l,
-		write('Value 2 '), write(ChldVal2), l),
 	fitness(ChldVal1, ChldFit1),
 	fitness(ChldVal2, ChldFit2),
-	(write('Fit 1 '), write(ChldFit1), l,
-		write('Fit 2 '), write(ChldFit2), l),
-	(write('BBB'), l),
-	(
-	debugging(evolve) -> 
-	write('Crossing point: '), write(CPt), l,
-	write('Child fitness: '), write(ChldFit1), l,
-	write('Child fitness: '), write(ChldFit2), l,
-	write('Paren fitness: '), write(Fit1), l,
-	write('Paren fitness: '), write(Fit2), l;
-	true
-	),
-	assertion(number(Fit1)),
-	assertion(number(ChldFit1)),
-	(ChldFit1 > Fit1) ->
+	((ChldFit1 > Fit1) ->
 		(
 		retract(chromo(Uid1, _, _, _, _, _, _)),
 		next_uid(Uid3),
-		asserta(chromo(Uid3, Chld1, ChldVal1, ChldFit1, _, _, CPt)),
-		write('Better child 1 fitness'), l
+		asserta(chromo(Uid3, Chld1, ChldVal1, ChldFit1, _, _, CPt))
 		);
-		true,
-	(ChldFit2 > Fit2) ->
+		true),
+	((ChldFit2 > Fit2) ->
 		(
 		retract(chromo(Uid2, _, _, _, _, _, _)),
 		next_uid(Uid4),
-		asserta(chromo(Uid4, Chld2, ChldVal2, ChldFit2, _, _, CPt)),
-		write('Better child 2 fitness'), l
+		asserta(chromo(Uid4, Chld2, ChldVal2, ChldFit2, _, _, CPt))
 		);
-		true.
+		true),
+	popfit(PopFit),
+	(write('PopFit: '), write(PopFit), l),
+	N1 is N - 1,
+	evolve(N1).
