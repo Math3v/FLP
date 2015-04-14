@@ -12,6 +12,7 @@
 % Dynamic clauses
 :- dynamic uid/1.
 :- dynamic pop/1.
+:- dynamic mut/1.
 :- dynamic chromo/7.
 
 % Utils
@@ -48,6 +49,14 @@ inc_pop:-
 	X is Y + 1,
 	retract(pop(Y)),
 	asserta(pop(X)).
+
+% Population counter
+mut(0).
+inc_mut:-
+	mut(Y),
+	X is Y + 1,
+	retract(mut(Y)),
+	asserta(mut(X)).
 
 % Get random crossing point
 crossing_point(CPt) :-
@@ -171,14 +180,15 @@ selection(Uid1, Uid2):-
 % Mutation
 mutate:-
 	random(Mut),
-	(Mut > 0.10) ->
+	(Mut < 0.10) ->
 	(
 	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
 	random_member(RUid, Uids),
 	chromo(RUid, Ch, Val, Fit, _, _, CPt),
 	random_permutation(Ch, Ch1),
 	retract(chromo(RUid, _, _, _, _, _, _)),
-	asserta(chromo(RUid, Ch1, Val, Fit, _, _, CPt))
+	asserta(chromo(RUid, Ch1, Val, Fit, _, _, CPt)),
+	inc_mut
 	)
 	;
 	(true).
@@ -225,8 +235,7 @@ generate(N):-
 	generate(N1).
 
 % Evolve
-evolve(0).
-evolve(N):-
+evolve:-
 	crossing_point(CPt),
 	selection(Uid1, Uid2),
 	chromo(Uid1, Ch1, _, Fit1, _, _, _),
@@ -250,18 +259,15 @@ evolve(N):-
 		asserta(chromo(Uid4, Chld2, ChldVal2, ChldFit2, _, _, CPt))
 		);
 		true),
-	popfit(PopFit),
-	(write('PopFit: '), write(PopFit), l),
 	max_fit(MaxFit),
-	(write('MaxFit: '), write(MaxFit), l),
 	val_by_fit(MaxFit, Value),
-	(write('MaxFitValue: '), write(Value), l),
-	pop(PopNo),
-	(write('Population number: '), write(PopNo), l),
 	((Value == 80) ; (Value == 79)) ->
+	(pop(PopNo),
+	(write('Population number: '), write(PopNo), l),
+	mut(MutNo),
+	(write('Mutation number: '), write(MutNo), l)),
 	fail
 	;
 	(mutate,
-	N1 is N - 1,
 	inc_pop,
-	evolve(N1)).
+	evolve).
