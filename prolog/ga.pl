@@ -17,6 +17,9 @@ b :- reconsult('ga.pl').
 s :- write(' ').
 l :- write('\n').
 
+% Chromosome length
+len(10).
+
 % Chromosome(UID, Ch, Num, Fit, P1, P2, Cpt)
 % UID 		Unique IDentifier
 % Ch 		Chromosome
@@ -26,7 +29,7 @@ l :- write('\n').
 % P2 		Parent 2
 % CPt 		Crossing point
 
-chromo(0, [0,0,1,0,1,0,1,1,0,0], _, _, _, _, _).
+%chromo(0, [0,0,1,0,1,0,1,1,0,0], _, _, _, _, _).
 %chromo(1, [0,1,0,0,0,1,1,1,0,1], _, _, _, _, _).
 
 % Generate unique identifier
@@ -38,9 +41,8 @@ next_uid(X) :- uid(Y),
 
 % Get random crossing point
 crossing_point(CPt) :-
-	chromo(_, C, _, _, _, _, _),
-	length(C, M),
-	random(0,M,CPt).
+	len(L),
+	random(0,L,CPt).
 
 % Chromosome to number
 chromo_to_num([], 0).
@@ -103,6 +105,10 @@ popfit(Sum):-
 	sumlist(Xs, Sum).
 
 % Generate chromosome
+gen_chromo(Chromo):-
+	len(L),
+	gen_chromo(Chromo, L).
+
 gen_chromo([], 0).
 gen_chromo([H|T], N):-
 	(maybe ->
@@ -119,8 +125,8 @@ generate(N):-
 	next_uid(Id1),
 	next_uid(Id2),
 	crossing_point(CPt),
-	gen_chromo(Ch1, 10),
-	gen_chromo(Ch2, 10),
+	gen_chromo(Ch1),
+	gen_chromo(Ch2),
 	chromo_to_num(Ch1, Val1),
 	chromo_to_num(Ch2, Val2),
 	fitness(Val1, Fit1),
