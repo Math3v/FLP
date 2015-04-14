@@ -7,6 +7,7 @@
 % Debugging topics: List by list_debug_topics.
 % chtonum - Chromosome to number
 % evolve - Evolution
+% fitness - Fitness function
 
 % Dynamic clauses
 :- dynamic uid/1.
@@ -90,14 +91,19 @@ cross(P1, P2, Chld1, Chld2, CPt):-
 fitness(Value,Fitness):-
 	(Value > 1000 ->
 	Val is 500;
-	Val is Value - 500),
+	Val is (Value) - 500),
 	assertion(Val >= -500),
 	assertion(Val =< 500),
 	Abs is abs(Val),
 	Sqr is sqrt(Abs),
 	Sin is sin(Sqr),
-	Mul is Sin * Value,
-	Fitness is 418.9829 - Mul.
+	Mul is (Sin) * (Val),
+	Fitness is 418.9829 - (Mul),
+	(debugging(fitness) ->
+		write('Value: '), write(Val), l,
+		write('Fitness: '), write(Fitness),l;
+		true
+	).
 
 % Calculate fitness of population
 % Note: generate random between min and max fitness
