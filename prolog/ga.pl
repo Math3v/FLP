@@ -11,6 +11,7 @@
 
 % Dynamic clauses
 :- dynamic uid/1.
+:- dynamic pop/1.
 :- dynamic chromo/7.
 
 % Utils
@@ -39,6 +40,14 @@ next_uid(X) :- uid(Y),
 			X is Y + 1,
 			retract(uid(Y)),
 			asserta(uid(X)).
+
+% Population counter
+pop(0).
+inc_pop:-
+	pop(Y),
+	X is Y + 1,
+	retract(pop(Y)),
+	asserta(pop(X)).
 
 % Get random crossing point
 crossing_point(CPt) :-
@@ -159,6 +168,20 @@ selection(Uid1, Uid2):-
 	true;
 	select_random(Uid1, Uid2).
 
+% Mutation
+mutate:-
+	random(Mut),
+	(Mut > 0.10) ->
+	(
+	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
+	random_member(RUid, Uids),
+	chromo(RUid, Ch, Val, Fit, _, _, CPt),
+	random_permutation(Ch, Ch1),
+	retract(chromo(RUid, _, _, _, _, _, _)),
+	asserta(chromo(RUid, Ch1, Val, Fit, _, _, CPt))
+	)
+	;
+	(true).
 % Generate chromosome
 gen_chromo(Chromo):-
 	len(L),
@@ -173,6 +196,16 @@ gen_chromo([H|T], N):-
 	),
 	N1 is N - 1,
 	gen_chromo(T, N1).
+
+% Max fitness
+max_fit(Fitness):-
+	findall(Fit, chromo(_,_,_,Fit,_,_,_), Fits),
+	max_member(Fitness, Fits).
+
+% Find value by fitness
+val_by_fit(Fitness, Value):-
+	chromo(_,_,Value,Fitness,_,_,_).
+
 
 % Generate initial population
 generate(0).
@@ -219,5 +252,16 @@ evolve(N):-
 		true),
 	popfit(PopFit),
 	(write('PopFit: '), write(PopFit), l),
+	max_fit(MaxFit),
+	(write('MaxFit: '), write(MaxFit), l),
+	val_by_fit(MaxFit, Value),
+	(write('MaxFitValue: '), write(Value), l),
+	pop(PopNo),
+	(write('Population number: '), write(PopNo), l),
+	((Value == 80) ; (Value == 79)) ->
+	fail
+	;
+	(mutate,
 	N1 is N - 1,
-	evolve(N1).
+	inc_pop,
+	evolve(N1)).
