@@ -106,20 +106,56 @@ fitness(Value,Fitness):-
 	).
 
 % Calculate fitness of population
-% Note: generate random between min and max fitness
-%		select closest larger chromosome to generated
-%		that will be selection of parents
-% THIS IS BAD, because all have the same probability!!!
-wheel(Rand):-
-	findall(X, chromo(_,_,_,X,_,_,_), Xs),
-	max_member(Max, Xs),
-	min_member(Min, Xs),
+popfit(PopFitness):-
+	findall(F, chromo(_,_,_,F,_,_,_), Fs),
+	sum_list(Fs, PopFitness).
+
+divide(Y,X,R):-R is X / Y.
+
+random_list_bounded(Rand, List):-
+	max_member(Max, List),
+	min_member(Min, List),
 	random(Min, Max, Rand).
 
-return_closest_fitness(Rand, Fitness):-
-	findall(X, chromo(_,_,_,X,_,_,_), Xs),
-	include(<(Rand), Xs, Greater),
-	nth0(0, Greater, Fitness).
+select(Uid1, Uid2):-
+	popfit(PopFitness),
+	findall(F, chromo(_,_,_,F,_,_,_), Fs),
+	maplist(divide(PopFitness),Fs,Divs),
+	random_list_bounded(Rand, Divs),
+	(
+	write('Divs: '), write(Divs), l,
+	write('PopFit: '), write(PopFitness), l,
+	write('Rand: '), write(Rand), l),
+	include(>=(Rand),Divs,Filtered),
+	(write('Include: '), write(Filtered), l),
+	sort(Filtered, Sorted),
+	length(Sorted, Length),
+	%last(Sorted, Last),
+	%nth0(0,Filtered,Last),
+	nth1(Length, Sorted, Last),
+	Length1 is Length - 1,
+	nth1(Length1, Sorted, PLast),
+	(write('Last: '), write(Last), l),
+	(write('PLast: '), write(PLast), l),
+	Fitness1 is Last * PopFitness,
+	Fitness2 is PLast * PopFitness,
+	assertion(member(Fitness1,Fs)),
+	assertion(member(Fitness2,Fs)),
+	chromo(Uid1,_,_,Fitness1,_,_,_),
+	chromo(Uid2,_,_,Fitness2,_,_,_).
+
+select_random(Uid1, Uid2):-
+	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
+	length(Uids, Length),
+	random(1, Length, Rand1),
+	random(1, Length, Rand2),
+	nth1(Rand1, Uids, Uid1),
+	nth1(Rand2, Uids, Uid2).
+
+selection(Uid1, Uid2):-
+	select(Uid1, Uid2) ->
+	true;
+	select_random(Uid1, Uid2).
 
 % Generate chromosome
 gen_chromo(Chromo):-
