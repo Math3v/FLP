@@ -97,6 +97,11 @@ fitness(Value,Fitness):-
 	Mul is Sin * Value,
 	Fitness is 418.9829 - Mul.
 
+% Calculate fitness of population
+popfit(Sum):-
+	findall(X, chromo(_,_,_,X,_,_,_), Xs),
+	sumlist(Xs, Sum).
+
 % Generate chromosome
 gen_chromo([], 0).
 gen_chromo([H|T], N):-
