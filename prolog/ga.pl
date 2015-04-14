@@ -110,40 +110,41 @@ popfit(PopFitness):-
 	findall(F, chromo(_,_,_,F,_,_,_), Fs),
 	sum_list(Fs, PopFitness).
 
+% Get id of element in list
+index_of(Elem, [Elem|_], 0):- !.
+index_of(Elem, [_|T], Index1):-
+	index_of(Elem, T, Index),
+	Index1 is Index + 1.
+
+% Division as predicate for maplist function
 divide(Y,X,R):-R is X / Y.
 
+% Get random number bounded by list
 random_list_bounded(Rand, List):-
 	max_member(Max, List),
 	min_member(Min, List),
 	random(Min, Max, Rand).
 
+% Select chromosomes IDs by roulette
 select(Uid1, Uid2):-
 	popfit(PopFitness),
 	findall(F, chromo(_,_,_,F,_,_,_), Fs),
 	maplist(divide(PopFitness),Fs,Divs),
 	random_list_bounded(Rand, Divs),
-	(
-	write('Divs: '), write(Divs), l,
-	write('PopFit: '), write(PopFitness), l,
-	write('Rand: '), write(Rand), l),
 	include(>=(Rand),Divs,Filtered),
-	(write('Include: '), write(Filtered), l),
 	sort(Filtered, Sorted),
 	length(Sorted, Length),
-	%last(Sorted, Last),
-	%nth0(0,Filtered,Last),
 	nth1(Length, Sorted, Last),
 	Length1 is Length - 1,
 	nth1(Length1, Sorted, PLast),
-	(write('Last: '), write(Last), l),
-	(write('PLast: '), write(PLast), l),
-	Fitness1 is Last * PopFitness,
-	Fitness2 is PLast * PopFitness,
-	assertion(member(Fitness1,Fs)),
-	assertion(member(Fitness2,Fs)),
+	index_of(Last, Divs, ILast),
+	index_of(PLast, Divs, IPLast),
+	nth0(ILast, Fs, Fitness1),
+	nth0(IPLast, Fs, Fitness2),
 	chromo(Uid1,_,_,Fitness1,_,_,_),
 	chromo(Uid2,_,_,Fitness2,_,_,_).
 
+% If roulette fails, select random chromosomes
 select_random(Uid1, Uid2):-
 	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
 	length(Uids, Length),
@@ -152,6 +153,7 @@ select_random(Uid1, Uid2):-
 	nth1(Rand1, Uids, Uid1),
 	nth1(Rand2, Uids, Uid2).
 
+% Selection wrapper
 selection(Uid1, Uid2):-
 	select(Uid1, Uid2) ->
 	true;
@@ -190,7 +192,7 @@ generate(N):-
 	generate(N1).
 
 % Testing evolve function
-evolve:-
+tevolve:-
 	crossing_point(Cpt),
 	chromo(0, Ch1, _, _, _, _, _),
 	chromo(1, Ch2, _, _, _, _, _),
@@ -210,3 +212,51 @@ evolve:-
 	write('Child 2: '), write(Chld2), l;
 	true
 	).
+
+%
+evolve:-
+	crossing_point(CPt),
+	(write('BBB'), l),
+	selection(Uid1, Uid2),
+	(write('BBB'), l),
+	chromo(Uid1, Ch1, _, Fit1, _, _, _),
+	chromo(Uid2, Ch2, _, Fit2, _, _, _),
+	(write('BBB'), l),
+	cross(Ch1, Ch2, Chld1, Chld2, CPt),
+	(write('BBB'), l),
+	chromo_to_num(Chld1, ChldVal1),
+	chromo_to_num(Chld2, ChldVal2),
+	(write('Value 1 '), write(ChldVal1), l,
+		write('Value 2 '), write(ChldVal2), l),
+	fitness(ChldVal1, ChldFit1),
+	fitness(ChldVal2, ChldFit2),
+	(write('Fit 1 '), write(ChldFit1), l,
+		write('Fit 2 '), write(ChldFit2), l),
+	(write('BBB'), l),
+	(
+	debugging(evolve) -> 
+	write('Crossing point: '), write(CPt), l,
+	write('Child fitness: '), write(ChldFit1), l,
+	write('Child fitness: '), write(ChldFit2), l,
+	write('Paren fitness: '), write(Fit1), l,
+	write('Paren fitness: '), write(Fit2), l;
+	true
+	),
+	assertion(number(Fit1)),
+	assertion(number(ChldFit1)),
+	(ChldFit1 > Fit1) ->
+		(
+		retract(chromo(Uid1, _, _, _, _, _, _)),
+		next_uid(Uid3),
+		asserta(chromo(Uid3, Chld1, ChldVal1, ChldFit1, _, _, CPt)),
+		write('Better child 1 fitness'), l
+		);
+		true,
+	(ChldFit2 > Fit2) ->
+		(
+		retract(chromo(Uid2, _, _, _, _, _, _)),
+		next_uid(Uid4),
+		asserta(chromo(Uid4, Chld2, ChldVal2, ChldFit2, _, _, CPt)),
+		write('Better child 2 fitness'), l
+		);
+		true.
