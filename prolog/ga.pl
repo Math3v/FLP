@@ -61,6 +61,17 @@ inc_mut:-
 % Float to integer
 to_int(Float, Int):- Int is round(Float).
 
+% Little hack
+move(X,X).
+
+% Split lsit to list of lists
+split(N, List, [Front|Rest]):-
+	length(List, Len),
+	(Len == N) ->
+	(move(List, Front),true);
+	(split(List, Front, Back, N),
+	split(N, Back, Rest)).
+
 % Get random crossing point
 crossing_point(CPt) :-
 	len(L),
