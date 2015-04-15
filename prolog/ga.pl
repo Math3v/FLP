@@ -69,6 +69,25 @@ split(N, List, [Front|Rest]):-
 	(split(List, Front, Back, N),
 	split(N, Back, Rest)).
 
+% Split chromosome at location loci
+% WARNING:	if Loci == length(List) then this will fail
+%				BUT: crossing point should not generate this case
+%			if Loci == 0 then List is in the second variable
+split([H|T], [], [H|T], 0).
+split([H|T],[H|Front],Back,Loci):-
+	(
+	length([H|T], L),
+	assertion(Loci \= L)
+	),
+	Loci1 is Loci - 1,
+	split(T,Front,Back,Loci1).
+
+% Merge list of lists into list
+merge([], []).
+merge([H|T], R):-
+	merge(T, Res),
+	append(H, Res, R).
+
 % Get random crossing point
 crossing_point(CPt) :-
 	len(L),
@@ -93,19 +112,6 @@ chromo_to_num([H|T], Length, BNumber, Number) :-
 	; true
 	),
 	chromo_to_num(T, Length1, Number1, Number).
-
-% Split chromosome at location loci
-% WARNING:	if Loci == length(List) then this will fail
-%				BUT: crossing point should not generate this case
-%			if Loci == 0 then List is in the second variable
-split([H|T], [], [H|T], 0).
-split([H|T],[H|Front],Back,Loci):-
-	(
-	length([H|T], L),
-	assertion(Loci \= L)
-	),
-	Loci1 is Loci - 1,
-	split(T,Front,Back,Loci1).
 
 % Crossing
 cross(P1, P2, P1, P2, 0).
