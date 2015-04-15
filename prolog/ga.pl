@@ -13,6 +13,7 @@
 :- dynamic uid/1.
 :- dynamic pop/1.
 :- dynamic mut/1.
+:- dynamic minfit/1.
 :- dynamic chromo/7.
 
 % Utils
@@ -321,6 +322,7 @@ evolve:-
 	min_fit(FMinFit),
 	val_by_fit(FMinFit, Value),
 	to_int(FMinFit, IMinFit),
+	print_min_fit(IMinFit),
 	(IMinFit == 0) ->
 	(pop(PopNo),
 	(write('Population number: '), write(PopNo), l),
@@ -332,3 +334,13 @@ evolve:-
 	(mutate,
 	inc_pop,
 	evolve).
+
+minfit(1000000).
+print_min_fit(Fit):-
+	minfit(Min),
+	(Fit < Min) ->
+	(retract(minfit(Min)),
+		asserta(minfit(Fit)),
+		write('MinFit: '), write(Fit), l)
+	;
+	(true).
