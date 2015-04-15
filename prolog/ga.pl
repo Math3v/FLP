@@ -114,12 +114,25 @@ chromo_to_num([H|T], Length, BNumber, Number) :-
 	chromo_to_num(T, Length1, Number1, Number).
 
 % Crossing
-cross(P1, P2, P1, P2, 0).
-cross(P1, P2, Chld1, Chld2, CPt):-
+cross(P1, P2, Chld1, Chld2):-
+	dimensions(D),
+	len(L),
+	N is L / D,
+	split(N, P1, P1s),
+	split(N, P2, P2s),
+	maplist(cross_, P1s, P2s, ResP1s, ResP2s),
+	merge(ResP1s, Chld1),
+	merge(ResP2s, Chld2), !.
+
+%cross_(P1, P2, P1, P2).
+cross_(P1, P2, Chld1, Chld2):-
+	length(P1, Length),
+	random(0, Length, CPt),
 	split(P1, FP1, BP1, CPt),
 	split(P2, FP2, BP2, CPt),
 	append(FP1, BP2, Chld1),
-	append(FP2, BP1, Chld2).
+	append(FP2, BP1, Chld2), !.
+
 
 % Calculate fitness function
 % Schwefel function
@@ -292,7 +305,7 @@ evolve:-
 	selection(Uid1, Uid2),
 	chromo(Uid1, Ch1, _, Fit1, _),
 	chromo(Uid2, Ch2, _, Fit2, _),
-	cross(Ch1, Ch2, Chld1, Chld2, CPt),
+	cross(Ch1, Ch2, Chld1, Chld2),
 	chromo_to_num(Chld1, ChldVal1),
 	chromo_to_num(Chld2, ChldVal2),
 	fitness(Chld1, ChldFit1),
