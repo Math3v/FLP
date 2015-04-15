@@ -192,8 +192,8 @@ invert_probability(Prob, New):- New is 1 - Prob.
 random_list_bounded(Rand, List):-
 	max_member(FMax, List),
 	min_member(FMin, List),
-	IMax is FMax * 100000,
-	IMin is FMin * 100000,
+	IMax is round(FMax * 100000),
+	IMin is round(FMin * 100000),
 	random(IMin, IMax, IRand),
 	Rand is IRand / 100000.
 
@@ -234,8 +234,8 @@ selection(Uid1, Uid2):-
 
 % Mutation
 mutate:-
-	random(Mut),
-	(Mut < 0.10) ->
+	random(0,100,Mut),
+	(Mut < 10) ->
 	(
 	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
 	random_member(RUid, Uids),
