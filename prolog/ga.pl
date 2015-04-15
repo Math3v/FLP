@@ -232,6 +232,17 @@ selection(Uid1, Uid2):-
 	true;
 	select_random(Uid1, Uid2).
 
+% Modify element at Nth position
+modify(0, X, [_|T], [X|T]).
+modify(N, X, [H|T], [H|R]):-
+	N1 is N - 1,
+	modify(N1, X, T, R), !.
+
+swap(X,Y):-
+	X == 1 ->
+	Y is 0;
+	Y is 1.
+
 % Mutation
 mutate:-
 	random(0,100,Mut),
@@ -240,7 +251,11 @@ mutate:-
 	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
 	random_member(RUid, Uids),
 	chromo(RUid, Ch, Val, Fit, _, _, CPt),
-	random_permutation(Ch, Ch1),
+	length(Ch, Length),
+	random(0, Length, Rand),
+	nth0(Rand, Ch, Elem),
+	swap(Elem, New),
+	modify(Rand, New, Ch, Ch1),
 	retract(chromo(RUid, _, _, _, _, _, _)),
 	asserta(chromo(RUid, Ch1, Val, Fit, _, _, CPt)),
 	inc_mut
