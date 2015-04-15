@@ -22,8 +22,8 @@ s :- write(' ').
 l :- write('\n').
 
 % Chromosome length
-dimensions(10).
-len(100).
+dimensions(6).
+len(60).
 
 % Chromosome(UID, Ch, Num, Fit, P1, P2, Cpt)
 % UID 		Unique IDentifier
@@ -119,7 +119,7 @@ cross(P1, P2, Chld1, Chld2, CPt):-
 	split(P1, FP1, BP1, CPt),
 	split(P2, FP2, BP2, CPt),
 	append(FP1, BP2, Chld1),
-	append(FP2, BP1, Chld2).
+	append(FP2, BP1, Chld2), !.
 
 % Calculate fitness function
 % Schwefel function
