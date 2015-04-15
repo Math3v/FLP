@@ -21,7 +21,8 @@ s :- write(' ').
 l :- write('\n').
 
 % Chromosome length
-len(10).
+dimensions(10).
+len(100).
 
 % Chromosome(UID, Ch, Num, Fit, P1, P2, Cpt)
 % UID 		Unique IDentifier
@@ -120,7 +121,7 @@ cross(P1, P2, Chld1, Chld2, CPt):-
 
 % Calculate fitness function
 % Schwefel function
-fitness(Value,Fitness):-
+fitness__(Value,Fitness):-
 	(Value > 1000 ->
 	Val is 500;
 	Val is (Value) - 500),
@@ -136,6 +137,38 @@ fitness(Value,Fitness):-
 		write('Fitness: '), write(Fitness),l;
 		true
 	).
+
+bound(Value, Val):-
+	(Value > 1000 ->
+	Val is 500;
+	Val is (Value) - 500),
+	assertion(Val > -501),
+	assertion(Val < 501).
+
+fitness_inner(X, Res):-
+	bound(X, Value),
+	Abs is abs(Value),
+	Sqr is sqrt(Abs),
+	Sin is sin(Sqr),
+	Res is Sin * Value.
+
+fitness(Chromo, Fitness):-
+	dimensions(D),
+	len(L),
+	N is L / D,
+	split(N, Chromo, Chromos),
+	maplist(chromo_to_num, Chromos, Nums),
+	%write('Nums: '), write(Nums), l,
+	maplist(fitness_inner, Nums, Inners),
+	%write('Inners: '), write(Inners), l,
+	sum_list(Inners, Sum),
+	!,
+	Fitness is (418.9829 * D) - Sum.
+
+test(Fitness):-
+	gen_chromo(Ch),
+	write('Chromo: '), write(Ch), l,
+	fitness(Ch, Fitness).
 
 % Calculate fitness of population
 popfit(PopFitness):-
@@ -250,8 +283,8 @@ generate(N):-
 	gen_chromo(Ch2),
 	chromo_to_num(Ch1, Val1),
 	chromo_to_num(Ch2, Val2),
-	fitness(Val1, Fit1),
-	fitness(Val2, Fit2),
+	fitness(Ch1, Fit1),
+	fitness(Ch2, Fit2),
 	asserta(chromo(Id1,Ch1,Val1,Fit1,_,_,CPt)),
 	asserta(chromo(Id2,Ch2,Val2,Fit2,_,_,CPt)),
 	N1 is N - 1,
@@ -266,8 +299,8 @@ evolve:-
 	cross(Ch1, Ch2, Chld1, Chld2, CPt),
 	chromo_to_num(Chld1, ChldVal1),
 	chromo_to_num(Chld2, ChldVal2),
-	fitness(ChldVal1, ChldFit1),
-	fitness(ChldVal2, ChldFit2),
+	fitness(Chld1, ChldFit1),
+	fitness(Chld2, ChldFit2),
 	((ChldFit1 < Fit1) ->
 		(
 		retract(chromo(Uid1, _, _, _, _, _, _)),
