@@ -189,9 +189,12 @@ invert_probability(Prob, New):- New is 1 - Prob.
 
 % Get random number bounded by list
 random_list_bounded(Rand, List):-
-	max_member(Max, List),
-	min_member(Min, List),
-	random(Min, Max, Rand).
+	max_member(FMax, List),
+	min_member(FMin, List),
+	IMax is FMax * 100000,
+	IMin is FMin * 100000,
+	random(IMin, IMax, IRand),
+	Rand is IRand / 100000.
 
 % Select chromosomes IDs by roulette
 select(Uid1, Uid2):-
