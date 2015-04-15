@@ -30,19 +30,14 @@ len(100).
 % Ch 		Chromosome
 % Num 		Chromosome as number
 % Fit 		Fitness value
-% P1 		Parent 1
-% P2 		Parent 2
 % CPt 		Crossing point
-
-%chromo(0, [0,0,1,0,1,0,1,1,0,0], _, _, _, _, _).
-%chromo(1, [0,1,0,0,0,1,1,1,0,1], _, _, _, _, _).
 
 % Generate unique identifier
 uid(0).
 next_uid(X) :- uid(Y), 
-			X is Y + 1,
-			retract(uid(Y)),
-			asserta(uid(X)).
+	X is Y + 1,
+	retract(uid(Y)),
+	asserta(uid(X)).
 
 % Population counter
 pop(0).
@@ -122,23 +117,6 @@ cross(P1, P2, Chld1, Chld2, CPt):-
 
 % Calculate fitness function
 % Schwefel function
-fitness__(Value,Fitness):-
-	(Value > 1000 ->
-	Val is 500;
-	Val is (Value) - 500),
-	assertion(Val >= -500),
-	assertion(Val =< 500),
-	Abs is abs(Val),
-	Sqr is sqrt(Abs),
-	Sin is sin(Sqr),
-	Mul is (Sin) * (Val),
-	Fitness is 418.9829 - (Mul),
-	(debugging(fitness) ->
-		write('Value: '), write(Val), l,
-		write('Fitness: '), write(Fitness),l;
-		true
-	).
-
 bound(Value, Val):-
 	(Value > 1000 ->
 	Val is 500;
@@ -159,21 +137,14 @@ fitness(Chromo, Fitness):-
 	N is L / D,
 	split(N, Chromo, Chromos),
 	maplist(chromo_to_num, Chromos, Nums),
-	%write('Nums: '), write(Nums), l,
 	maplist(fitness_inner, Nums, Inners),
-	%write('Inners: '), write(Inners), l,
 	sum_list(Inners, Sum),
 	!,
 	Fitness is (418.9829 * D) - Sum.
 
-test(Fitness):-
-	gen_chromo(Ch),
-	write('Chromo: '), write(Ch), l,
-	fitness(Ch, Fitness).
-
 % Calculate fitness of population
 popfit(PopFitness):-
-	findall(F, chromo(_,_,_,F,_,_,_), Fs),
+	findall(F, chromo(_,_,_,F,_), Fs),
 	sum_list(Fs, PopFitness).
 
 % Get id of element in list
@@ -200,7 +171,7 @@ random_list_bounded(Rand, List):-
 % Select chromosomes IDs by roulette
 select(Uid1, Uid2):-
 	popfit(PopFitness),
-	findall(F, chromo(_,_,_,F,_,_,_), Fs),
+	findall(F, chromo(_,_,_,F,_), Fs),
 	maplist(divide(PopFitness),Fs,Divs1),
 	maplist(invert_probability,Divs1,Divs),
 	random_list_bounded(Rand, Divs),
@@ -214,12 +185,12 @@ select(Uid1, Uid2):-
 	index_of(PLast, Divs, IPLast),
 	nth0(ILast, Fs, Fitness1),
 	nth0(IPLast, Fs, Fitness2),
-	chromo(Uid1,_,_,Fitness1,_,_,_),
-	chromo(Uid2,_,_,Fitness2,_,_,_).
+	chromo(Uid1,_,_,Fitness1,_),
+	chromo(Uid2,_,_,Fitness2,_).
 
 % If roulette fails, select random chromosomes
 select_random(Uid1, Uid2):-
-	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
+	findall(Uid, chromo(Uid,_,_,_,_), Uids),
 	length(Uids, Length),
 	random(1, Length, Rand1),
 	random(1, Length, Rand2),
@@ -248,16 +219,16 @@ mutate:-
 	random(0,100,Mut),
 	(Mut < 10) ->
 	(
-	findall(Uid, chromo(Uid,_,_,_,_,_,_), Uids),
+	findall(Uid, chromo(Uid,_,_,_,_), Uids),
 	random_member(RUid, Uids),
-	chromo(RUid, Ch, Val, Fit, _, _, CPt),
+	chromo(RUid, Ch, Val, Fit, CPt),
 	length(Ch, Length),
 	random(0, Length, Rand),
 	nth0(Rand, Ch, Elem),
 	swap(Elem, New),
 	modify(Rand, New, Ch, Ch1),
-	retract(chromo(RUid, _, _, _, _, _, _)),
-	asserta(chromo(RUid, Ch1, Val, Fit, _, _, CPt)),
+	retract(chromo(RUid,_,_,_,_)),
+	asserta(chromo(RUid, Ch1, Val, Fit, CPt)),
 	inc_mut
 	)
 	;
@@ -279,17 +250,17 @@ gen_chromo([H|T], N):-
 
 % Max fitness
 max_fit(Fitness):-
-	findall(Fit, chromo(_,_,_,Fit,_,_,_), Fits),
+	findall(Fit, chromo(_,_,_,Fit,_), Fits),
 	max_member(Fitness, Fits).
 
 % Min fitness
 min_fit(Fitness):-
-	findall(Fit, chromo(_,_,_,Fit,_,_,_), Fits),
+	findall(Fit, chromo(_,_,_,Fit,_), Fits),
 	min_member(Fitness, Fits).
 
 % Find value by fitness
 val_by_fit(Fitness, Value):-
-	chromo(_,_,Value,Fitness,_,_,_).
+	chromo(_,_,Value,Fitness,_).
 
 
 % Generate initial population
@@ -304,17 +275,17 @@ generate(N):-
 	chromo_to_num(Ch2, Val2),
 	fitness(Ch1, Fit1),
 	fitness(Ch2, Fit2),
-	asserta(chromo(Id1,Ch1,Val1,Fit1,_,_,CPt)),
-	asserta(chromo(Id2,Ch2,Val2,Fit2,_,_,CPt)),
+	asserta(chromo(Id1,Ch1,Val1,Fit1,CPt)),
+	asserta(chromo(Id2,Ch2,Val2,Fit2,CPt)),
 	N1 is N - 1,
-	generate(N1).
+	generate(N1), !.
 
 % Evolve
 evolve:-
 	crossing_point(CPt),
 	selection(Uid1, Uid2),
-	chromo(Uid1, Ch1, _, Fit1, _, _, _),
-	chromo(Uid2, Ch2, _, Fit2, _, _, _),
+	chromo(Uid1, Ch1, _, Fit1, _),
+	chromo(Uid2, Ch2, _, Fit2, _),
 	cross(Ch1, Ch2, Chld1, Chld2, CPt),
 	chromo_to_num(Chld1, ChldVal1),
 	chromo_to_num(Chld2, ChldVal2),
@@ -322,16 +293,16 @@ evolve:-
 	fitness(Chld2, ChldFit2),
 	((ChldFit1 < Fit1) ->
 		(
-		retract(chromo(Uid1, _, _, _, _, _, _)),
+		retract(chromo(Uid1, _, _, _, _)),
 		next_uid(Uid3),
-		asserta(chromo(Uid3, Chld1, ChldVal1, ChldFit1, _, _, CPt))
+		asserta(chromo(Uid3, Chld1, ChldVal1, ChldFit1, CPt))
 		);
 		true),
 	((ChldFit2 < Fit2) ->
 		(
-		retract(chromo(Uid2, _, _, _, _, _, _)),
+		retract(chromo(Uid2, _, _, _, _)),
 		next_uid(Uid4),
-		asserta(chromo(Uid4, Chld2, ChldVal2, ChldFit2, _, _, CPt))
+		asserta(chromo(Uid4, Chld2, ChldVal2, ChldFit2, CPt))
 		);
 		true),
 	min_fit(FMinFit),
