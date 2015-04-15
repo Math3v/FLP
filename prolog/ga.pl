@@ -58,6 +58,9 @@ inc_mut:-
 	retract(mut(Y)),
 	asserta(mut(X)).
 
+% Float to integer
+to_int(Float, Int):- Int is round(Float).
+
 % Get random crossing point
 crossing_point(CPt) :-
 	len(L),
@@ -137,6 +140,9 @@ index_of(Elem, [_|T], Index1):-
 % Division as predicate for maplist function
 divide(Y,X,R):-R is X / Y.
 
+% Invert probability
+invert_probability(Prob, New):- New is 1 - Prob.
+
 % Get random number bounded by list
 random_list_bounded(Rand, List):-
 	max_member(Max, List),
@@ -147,7 +153,8 @@ random_list_bounded(Rand, List):-
 select(Uid1, Uid2):-
 	popfit(PopFitness),
 	findall(F, chromo(_,_,_,F,_,_,_), Fs),
-	maplist(divide(PopFitness),Fs,Divs),
+	maplist(divide(PopFitness),Fs,Divs1),
+	maplist(invert_probability,Divs1,Divs),
 	random_list_bounded(Rand, Divs),
 	include(>=(Rand),Divs,Filtered),
 	sort(Filtered, Sorted),
@@ -212,6 +219,11 @@ max_fit(Fitness):-
 	findall(Fit, chromo(_,_,_,Fit,_,_,_), Fits),
 	max_member(Fitness, Fits).
 
+% Min fitness
+min_fit(Fitness):-
+	findall(Fit, chromo(_,_,_,Fit,_,_,_), Fits),
+	min_member(Fitness, Fits).
+
 % Find value by fitness
 val_by_fit(Fitness, Value):-
 	chromo(_,_,Value,Fitness,_,_,_).
@@ -245,27 +257,29 @@ evolve:-
 	chromo_to_num(Chld2, ChldVal2),
 	fitness(ChldVal1, ChldFit1),
 	fitness(ChldVal2, ChldFit2),
-	((ChldFit1 > Fit1) ->
+	((ChldFit1 < Fit1) ->
 		(
 		retract(chromo(Uid1, _, _, _, _, _, _)),
 		next_uid(Uid3),
 		asserta(chromo(Uid3, Chld1, ChldVal1, ChldFit1, _, _, CPt))
 		);
 		true),
-	((ChldFit2 > Fit2) ->
+	((ChldFit2 < Fit2) ->
 		(
 		retract(chromo(Uid2, _, _, _, _, _, _)),
 		next_uid(Uid4),
 		asserta(chromo(Uid4, Chld2, ChldVal2, ChldFit2, _, _, CPt))
 		);
 		true),
-	max_fit(MaxFit),
-	val_by_fit(MaxFit, Value),
-	((Value == 80) ; (Value == 79)) ->
+	min_fit(FMinFit),
+	val_by_fit(FMinFit, Value),
+	to_int(FMinFit, IMinFit),
+	(IMinFit == 0) ->
 	(pop(PopNo),
 	(write('Population number: '), write(PopNo), l),
 	mut(MutNo),
-	(write('Mutation number: '), write(MutNo), l)),
+	(write('Mutation number: '), write(MutNo), l),
+	(write('Value: '), write(Value), l)),
 	fail
 	;
 	(mutate,
