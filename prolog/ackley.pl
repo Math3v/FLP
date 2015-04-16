@@ -7,7 +7,7 @@
 % Initialize
 init:-
 	dimensions(Dimensions),
-	Length is 17 * Dimensions,
+	Length is 16 * Dimensions,
 	asserta(len(Length)).
 
 % Map interval <0 - 65535> to <-32.768 - 32.768>
