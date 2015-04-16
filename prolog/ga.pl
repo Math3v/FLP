@@ -18,7 +18,7 @@
 :- dynamic dimensions/1.
 
 % Configuration
-:- ensure_loaded(ackley).
+:- ensure_loaded(schwefel).
 dimensions(5).
 chromosomes(150).
 
@@ -64,6 +64,14 @@ inc_mut:-
 
 % Float to integer
 to_int(Float, Int):- Int is round(Float).
+
+% Take function from slides
+take(_, [], []):-!.
+take(N, [H|T], [H|TT]) :-
+	N > 0, !,
+	NN is N-1,
+	take(NN, T, TT).
+take(_, _, []).
 
 % Little hack
 move(X,X).
