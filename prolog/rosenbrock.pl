@@ -7,9 +7,12 @@
 % Initialize
 init:-
 	dimensions(Dimensions),
-	assertion(Dimensions == 2),
+	assertion(Dimensions >= 2),
 	Length is 10 * Dimensions,
 	asserta(len(Length)).
+
+% Remove head
+remhead([_|T], T).
 
 % Map interval <0 - 1023> to <-5.12 - 5.12>
 bound(Value, Val):-
@@ -18,10 +21,13 @@ bound(Value, Val):-
 	assertion(Bounded < 513),
 	Val is Bounded / 100.
 
-% Calculate inner part of sum
-split_xy(List, First, Second):-
-	nth0(0, List, First),
-	nth0(1, List, Second).
+% 
+inner(X, Y, Z):-
+	Y == 100000 ->
+	Z is 0;
+	LB is ((X ** 2) - Y) ** 2,
+	RB is (X - 1) ** 2,
+	Z is 100 * LB + RB.
 
 % Calculate fitness value
 fitness(Chromo, Fitness):-
@@ -31,8 +37,7 @@ fitness(Chromo, Fitness):-
 	split(N, Chromo, Chromos),
 	maplist(chromo_to_num, Chromos, Nums),
 	maplist(bound, Nums, BNums),
-	split_xy(BNums, X, Y),
-	!,
-	XP is (1 - X ** 2),
-	YP is (Y - X ** 2) ** 2,
-	Fitness is XP + 100 * YP.
+	remhead(BNums, Tmp),
+	append(Tmp, [100000], Shifted),
+	maplist(inner, BNums, Shifted, Bracket),
+	sum_list(Bracket, Fitness), !.
