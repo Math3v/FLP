@@ -17,7 +17,7 @@
 :- dynamic chromo/7.
 
 % Include fitness function
-:- ensure_loaded(rastrigin).
+:- ensure_loaded(rosenbrock).
 
 % Utils
 b :- reconsult('ga.pl').
@@ -269,14 +269,14 @@ evolve:-
 	chromo_to_num(Chld2, ChldVal2),
 	fitness(Chld1, ChldFit1),
 	fitness(Chld2, ChldFit2),
-	((ChldFit1 < Fit1) ->
+	((abs(ChldFit1) < abs(Fit1)) ->
 		(
 		retract(chromo(Uid1, _, _, _, _)),
 		next_uid(Uid3),
 		asserta(chromo(Uid3, Chld1, ChldVal1, ChldFit1, CPt))
 		);
 		true),
-	((ChldFit2 < Fit2) ->
+	((abs(ChldFit2) < abs(Fit2)) ->
 		(
 		retract(chromo(Uid2, _, _, _, _)),
 		next_uid(Uid4),
@@ -286,7 +286,7 @@ evolve:-
 	min_fit(FMinFit),
 	val_by_fit(FMinFit, Value),
 	to_int(FMinFit, IMinFit),
-	print_min_fit(IMinFit),
+	print_min_fit(FMinFit),
 	(IMinFit == 0) ->
 	(pop(PopNo),
 	(write('Population number: '), write(PopNo), l),
@@ -299,10 +299,10 @@ evolve:-
 	inc_pop,
 	evolve).
 
-minfit(1000000).
+minfit(1000000.0).
 print_min_fit(Fit):-
 	minfit(Min),
-	(Fit < Min) ->
+	(abs(Fit) < abs(Min)) ->
 	(retract(minfit(Min)),
 		asserta(minfit(Fit)),
 		write('MinFit: '), write(Fit), l)
