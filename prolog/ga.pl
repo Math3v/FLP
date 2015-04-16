@@ -44,7 +44,12 @@ inc_pop:-
 	pop(Y),
 	X is Y + 1,
 	retract(pop(Y)),
-	asserta(pop(X)).
+	asserta(pop(X)),
+	Z is X mod 10000,
+	(Z == 0) ->
+	(write('Pop: '), write(X), l)
+	;
+	true.
 
 % Population counter
 mut(0).
