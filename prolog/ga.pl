@@ -18,8 +18,8 @@
 :- dynamic dimensions/1.
 
 % Configuration
-:- ensure_loaded(rosenbrock).
-dimensions(2).
+:- ensure_loaded(ackley).
+dimensions(5).
 chromosomes(150).
 
 % Utils
