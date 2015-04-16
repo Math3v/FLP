@@ -16,14 +16,12 @@
 :- dynamic minfit/1.
 :- dynamic chromo/7.
 
+:- ensure_loaded(rastrigin).
+
 % Utils
 b :- reconsult('ga.pl').
 s :- write(' ').
 l :- write('\n').
-
-% Chromosome length
-dimensions(6).
-len(60).
 
 % Chromosome(UID, Ch, Num, Fit, P1, P2, Cpt)
 % UID 		Unique IDentifier
@@ -120,33 +118,6 @@ cross(P1, P2, Chld1, Chld2, CPt):-
 	split(P2, FP2, BP2, CPt),
 	append(FP1, BP2, Chld1),
 	append(FP2, BP1, Chld2), !.
-
-% Calculate fitness function
-% Schwefel function
-bound(Value, Val):-
-	(Value > 1000 ->
-	Val is 500;
-	Val is (Value) - 500),
-	assertion(Val > -501),
-	assertion(Val < 501).
-
-fitness_inner(X, Res):-
-	bound(X, Value),
-	Abs is abs(Value),
-	Sqr is sqrt(Abs),
-	Sin is sin(Sqr),
-	Res is Sin * Value.
-
-fitness(Chromo, Fitness):-
-	dimensions(D),
-	len(L),
-	N is L / D,
-	split(N, Chromo, Chromos),
-	maplist(chromo_to_num, Chromos, Nums),
-	maplist(fitness_inner, Nums, Inners),
-	sum_list(Inners, Sum),
-	!,
-	Fitness is (418.9829 * D) - Sum.
 
 % Calculate fitness of population
 popfit(PopFitness):-
