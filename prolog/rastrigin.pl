@@ -4,9 +4,11 @@
 % Author:	Matej Minarik (XMINAR29)
 % Include this file in order to use Rastrigin function
 
-% Chromosome length
-dimensions(1).
-len(10).
+% Initialize
+init:-
+	dimensions(Dimensions),
+	Length is 10 * Dimensions,
+	asserta(len(Length)).
 
 % Map interval <0 - 1023> to <-5.12 - 5.12>
 bound(Value, Val):-

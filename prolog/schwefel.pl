@@ -4,9 +4,11 @@
 % Author:	Matej Minarik (XMINAR29)
 % Include this file in order to use Schwefel function
 
-% Chromosome length
-dimensions(5).
-len(50).
+% Initialize
+init:-
+	dimensions(Dimensions),
+	Length is 10 * Dimensions,
+	asserta(len(Length)).
 
 % Map interval <0 - 1023> to <-500 - 500>
 bound(Value, Val):-

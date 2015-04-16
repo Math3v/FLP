@@ -4,9 +4,12 @@
 % Author:	Matej Minarik (XMINAR29)
 % Include this file in order to use Rosenbrock function
 
-% Chromosome length
-dimensions(2).
-len(20).
+% Initialize
+init:-
+	dimensions(Dimensions),
+	assertion(Dimensions == 2),
+	Length is 10 * Dimensions,
+	asserta(len(Length)).
 
 % Map interval <0 - 1023> to <-5.12 - 5.12>
 bound(Value, Val):-
