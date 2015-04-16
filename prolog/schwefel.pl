@@ -37,3 +37,10 @@ fitness(Chromo, Fitness):-
 	sum_list(Inners, Sum),
 	!,
 	Fitness is (418.9829 * D) - Sum.
+
+schtake(0, _, []):-!.
+schtake(Pos, List, [Sum|T]):-
+	take(Pos, List, Vals),
+	sum_list(Vals, Sum),
+	Pos1 is Pos - 1,
+	schtake(Pos1, List, T).
