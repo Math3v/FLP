@@ -17,9 +17,10 @@
 :- dynamic chromo/7.
 :- dynamic dimensions/1.
 
-% Include fitness function
+% Configuration
 :- ensure_loaded(rosenbrock).
 dimensions(2).
+chromosomes(150).
 
 % Utils
 b :- reconsult('ga.pl').
@@ -318,5 +319,6 @@ print_min_fit(Fit):-
 
 start:-
 	init,
-	generate(150),
+	chromosomes(Number),
+	generate(Number),
 	evolve.
