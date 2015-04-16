@@ -8,8 +8,7 @@
 dimensions(5).
 len(50).
 
-% Calculate fitness function
-% Schwefel function
+% Map interval <0 - 1023> to <-500 - 500>
 bound(Value, Val):-
 	(Value > 1000 ->
 	Val is 500;
@@ -17,6 +16,7 @@ bound(Value, Val):-
 	assertion(Val > -501),
 	assertion(Val < 501).
 
+% Calculate inner part of sum
 fitness_inner(X, Res):-
 	bound(X, Value),
 	Abs is abs(Value),
@@ -24,6 +24,7 @@ fitness_inner(X, Res):-
 	Sin is sin(Sqr),
 	Res is Sin * Value.
 
+% Calculate fitness value
 fitness(Chromo, Fitness):-
 	dimensions(D),
 	len(L),

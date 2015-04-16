@@ -16,6 +16,7 @@
 :- dynamic minfit/1.
 :- dynamic chromo/7.
 
+% Include fitness function
 :- ensure_loaded(rastrigin).
 
 % Utils
@@ -23,7 +24,7 @@ b :- reconsult('ga.pl').
 s :- write(' ').
 l :- write('\n').
 
-% Chromosome(UID, Ch, Num, Fit, P1, P2, Cpt)
+% Chromosome(UID, Ch, Num, Fit, Cpt)
 % UID 		Unique IDentifier
 % Ch 		Chromosome
 % Num 		Chromosome as number
