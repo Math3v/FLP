@@ -15,9 +15,11 @@
 :- dynamic mut/1.
 :- dynamic minfit/1.
 :- dynamic chromo/7.
+:- dynamic dimensions/1.
 
 % Include fitness function
 :- ensure_loaded(rosenbrock).
+dimensions(2).
 
 % Utils
 b :- reconsult('ga.pl').
@@ -313,3 +315,8 @@ print_min_fit(Fit):-
 		write('MinFit: '), write(Fit), l)
 	;
 	(true).
+
+start:-
+	init,
+	generate(150),
+	evolve.
