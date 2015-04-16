@@ -18,13 +18,16 @@ bound(Value, Val):-
 	assertion(Val > -501),
 	assertion(Val < 501).
 
-% Calculate inner part of sum
-fitness_inner(X, Res):-
-	bound(X, Value),
-	Abs is abs(Value),
-	Sqr is sqrt(Abs),
-	Sin is sin(Sqr),
-	Res is Sin * Value.
+% Compute square
+square(X, Sqr):-Sqr is X ** 2.
+
+% Compute sum of prefixes
+prefixsum(0, _, []):-!.
+prefixsum(Pos, List, [Sum|T]):-
+	take(Pos, List, Vals),
+	sum_list(Vals, Sum),
+	Pos1 is Pos - 1,
+	prefixsum(Pos1, List, T).
 
 % Calculate fitness value
 fitness(Chromo, Fitness):-
@@ -33,14 +36,11 @@ fitness(Chromo, Fitness):-
 	N is L / D,
 	split(N, Chromo, Chromos),
 	maplist(chromo_to_num, Chromos, Nums),
-	maplist(fitness_inner, Nums, Inners),
-	sum_list(Inners, Sum),
+	maplist(bound, Nums, Bounded),
+	length(Bounded, Length),
+	prefixsum(Length, Bounded, PrefSums),
+	maplist(square, PrefSums, Squares),
+	sum_list(Squares, Sum),
 	!,
-	Fitness is (418.9829 * D) - Sum.
+	Fitness is Sum.
 
-schtake(0, _, []):-!.
-schtake(Pos, List, [Sum|T]):-
-	take(Pos, List, Vals),
-	sum_list(Vals, Sum),
-	Pos1 is Pos - 1,
-	schtake(Pos1, List, T).
