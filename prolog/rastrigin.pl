@@ -2,28 +2,28 @@
 % Purpose:	Genetic Algorithm
 % File:		rastrigin.pl
 % Author:	Matej Minarik (XMINAR29)
-% Include this file in order to use Schwefel function
+% Include this file in order to use Rastrigin function
 
 % Chromosome length
-dimensions(5).
-len(50).
+dimensions(1).
+len(10).
 
-% Calculate fitness function
-% Schwefel function
+% Map interval <0 - 1023> to <-5.12 - 5.12>
 bound(Value, Val):-
-	(Value > 1000 ->
-	Val is 500;
-	Val is (Value) - 500),
-	assertion(Val > -501),
-	assertion(Val < 501).
+	Bounded is Value - 512,
+	assertion(Bounded > -513),
+	assertion(Bounded < 513),
+	Val is Bounded / 100.
 
+% Calculate inner part of sum
 fitness_inner(X, Res):-
 	bound(X, Value),
-	Abs is abs(Value),
-	Sqr is sqrt(Abs),
-	Sin is sin(Sqr),
-	Res is Sin * Value.
+	Sqr is Value ** 2,
+	Bkt is 2 * pi * Value,
+	Cos is cos(Bkt),
+	Res is Sqr - (10 * Cos).
 
+% Calculate fitness value
 fitness(Chromo, Fitness):-
 	dimensions(D),
 	len(L),
@@ -33,4 +33,4 @@ fitness(Chromo, Fitness):-
 	maplist(fitness_inner, Nums, Inners),
 	sum_list(Inners, Sum),
 	!,
-	Fitness is (418.9829 * D) - Sum.
+	Fitness is (10 * D) + Sum.
