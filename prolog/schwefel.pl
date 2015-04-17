@@ -12,7 +12,7 @@ init:-
 
 % Map interval <0 - 255> to <-128 - 128>
 bound(Value, Val):-
-	Val is (Value) - 128),
+	Val is Value - 128,
 	assertion(Val > -129),
 	assertion(Val < 128).
 
