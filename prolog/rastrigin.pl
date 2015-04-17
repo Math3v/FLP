@@ -23,7 +23,7 @@ fitness_inner(X, Res):-
 	Sqr is Value ** 2,
 	Bkt is 2 * pi * Value,
 	Cos is cos(Bkt),
-	Res is Sqr - (10 * Cos).
+	Res is Sqr - (10 * Cos) + 10.
 
 % Calculate fitness value
 fitness(Chromo, Fitness):-
@@ -35,4 +35,4 @@ fitness(Chromo, Fitness):-
 	maplist(fitness_inner, Nums, Inners),
 	sum_list(Inners, Sum),
 	!,
-	Fitness is (10 * D) + Sum.
+	Fitness is Sum.
