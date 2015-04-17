@@ -18,7 +18,7 @@
 :- dynamic dimensions/1.
 
 % Configuration
-:- consult(schwefel).
+:- consult(elliptic).
 dimensions(5).
 chromosomes(150).
 
