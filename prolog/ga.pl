@@ -18,7 +18,7 @@
 :- dynamic dimensions/1.
 
 % Configuration
-:- ensure_loaded(schwefel).
+:- consult(schwefel).
 dimensions(5).
 chromosomes(150).
 
