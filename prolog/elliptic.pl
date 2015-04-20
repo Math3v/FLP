@@ -7,15 +7,15 @@
 % Initialize
 init:-
 	dimensions(Dimensions),
-	Length is 10 * Dimensions,
+	Length is 5 * Dimensions,
 	asserta(len(Length)).
 
-% Map interval <0 - 1023> to <-51.2 - 51.2>
+% Map interval <0 - 31> to <-15 - 16>
 bound(Value, Val):-
-	Bounded is Value - 512,
-	assertion(Bounded > -513),
-	assertion(Bounded < 513),
-	Val is Bounded / 10.
+	Bounded is Value - 15,
+	assertion(Bounded > -16),
+	assertion(Bounded < 17),
+	Val is Bounded.
 
 % Generate indices
 % Need to be reversed
