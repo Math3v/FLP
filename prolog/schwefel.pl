@@ -7,14 +7,15 @@
 % Initialize
 init:-
 	dimensions(Dimensions),
-	Length is 8 * Dimensions,
+	Length is 5 * Dimensions,
 	asserta(len(Length)).
 
-% Map interval <0 - 255> to <-128 - 128>
+% Map interval <0 - 31> to <-15 - 16>
 bound(Value, Val):-
-	Val is Value - 128,
-	assertion(Val > -129),
-	assertion(Val < 128).
+	Bounded is Value - 15,
+	assertion(Bounded > -16),
+	assertion(Bounded < 17),
+	Val is Bounded.
 
 % Compute square
 square(X, Sqr):-Sqr is X ** 2.
