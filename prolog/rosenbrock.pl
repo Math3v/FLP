@@ -8,18 +8,18 @@
 init:-
 	dimensions(Dimensions),
 	assertion(Dimensions >= 2),
-	Length is 10 * Dimensions,
+	Length is 5 * Dimensions,
 	asserta(len(Length)).
 
 % Remove head
 remhead([_|T], T).
 
-% Map interval <0 - 1023> to <-5.12 - 5.12>
+% Map interval <0 - 31> to <-2.14 - 2.28>
 bound(Value, Val):-
-	Bounded is Value - 512,
-	assertion(Bounded > -513),
-	assertion(Bounded < 513),
-	Val is Bounded / 100.
+	unded is Value - 15,
+	assertion(Bounded > -16),
+	assertion(Bounded < 17),
+	Val is Bounded / 7.
 
 % 
 inner(X, Y, Z):-
