@@ -16,7 +16,7 @@ remhead([_|T], T).
 
 % Map interval <0 - 31> to <-2.14 - 2.28>
 bound(Value, Val):-
-	unded is Value - 15,
+	Bounded is Value - 15,
 	assertion(Bounded > -16),
 	assertion(Bounded < 17),
 	Val is Bounded / 7.
