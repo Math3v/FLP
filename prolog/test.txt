@@ -1,0 +1,74 @@
+Elliptic function:
+	Dimensions: 5
+	Population size: 150
+	Chromosome length: 10 * 5
+	Populations generated (test 1): 24 959
+	Populations generated (test 2): 26 945
+
+	Dimensions: 7
+	Population size: 150
+	Chromosome length: 10 * 7
+	Populations generated (test 1): 280 000+
+
+	Dimensions: 5
+	Population size: 150
+	Chromosome length: 5 * 5
+	Populations generated: 7 518
+
+	Dimensions: 7
+	Population size: 150
+	Chromosome length: 5 * 7
+	Populations generated: 27 637
+
+	Dimensions: 10
+	Population size: 150
+	Chromosome length: 5 * 10
+	Populations generated: 37 151
+
+Schwefel function:
+	Dimensions: 5
+	Population size: 150
+	Chromosome length: 5 * 5
+	Populations generated: 7 204
+
+	Dimensions: 7
+	Population size: 150
+	Chromosome length: 5 * 7
+	Populations generated: 33 886
+
+	Dimensions: 8
+	Population size: 150
+	Chromosome length: 5 * 8
+	Populations generated: 19 728
+
+Rastrigin function:
+	Dimensions: 5
+	Population size: 150
+	Chromosome length: 5 * 5
+	Populations generated: 3 640
+
+	Dimensions: 7
+	Population size: 150
+	Chromosome length: 5 * 7
+	Populations generated: 3 053
+
+	Dimensions: 10
+	Population size: 150
+	Chromosome length: 5 * 10
+	Populations generated: 10 067
+
+Rosenbrock function:
+	Dimensions: 5
+	Population size: 150
+	Chromosome length: 5 * 5
+	Populations generated: ???
+
+	Dimensions: 7
+	Population size: 150
+	Chromosome length: 5 * 7
+	Populations generated: ???
+
+	Dimensions: 10
+	Population size: 150
+	Chromosome length: 5 * 10
+	Populations generated: ???
