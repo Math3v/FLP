@@ -7,15 +7,15 @@
 % Initialize
 init:-
 	dimensions(Dimensions),
-	Length is 16 * Dimensions,
+	Length is 5 * Dimensions,
 	asserta(len(Length)).
 
-% Map interval <0 - 65535> to <-32.768 - 32.768>
+% Map interval <0 - 31> to <-15 - 16>
 bound(Value, Val):-
-	Bounded is Value - 32768,
-	assertion(Bounded > -32769),
-	assertion(Bounded < 32769),
-	Val is Bounded / 1000.
+	Bounded is Value - 15,
+	assertion(Bounded > -16),
+	assertion(Bounded < 17),
+	Val is Bounded.
 
 % Calculate inner part of sum
 inner1(Value, Result):-
