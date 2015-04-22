@@ -61,7 +61,7 @@ Rosenbrock function:
 	Dimensions: 5
 	Population size: 150
 	Chromosome length: 5 * 5
-	Populations generated: ???
+	Populations generated: 8 471
 
 	Dimensions: 7
 	Population size: 150
@@ -72,3 +72,19 @@ Rosenbrock function:
 	Population size: 150
 	Chromosome length: 5 * 10
 	Populations generated: ???
+
+Ackley function:
+	Dimensions: 5
+	Population size: 150
+	Chromosome length: 5 * 5
+	Populations generated: 2 973
+
+	Dimensions: 7
+	Population size: 150
+	Chromosome length: 5 * 7
+	Populations generated: 4 861
+
+	Dimensions: 10
+	Population size: 150
+	Chromosome length: 5 * 10
+	Populations generated: 13 641
