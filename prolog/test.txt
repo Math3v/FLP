@@ -1,17 +1,6 @@
 Elliptic function:
 	Dimensions: 5
 	Population size: 150
-	Chromosome length: 10 * 5
-	Populations generated (test 1): 24 959
-	Populations generated (test 2): 26 945
-
-	Dimensions: 7
-	Population size: 150
-	Chromosome length: 10 * 7
-	Populations generated (test 1): 280 000+
-
-	Dimensions: 5
-	Population size: 150
 	Chromosome length: 5 * 5
 	Populations generated: 7 518
 
@@ -66,7 +55,7 @@ Rosenbrock function:
 	Dimensions: 7
 	Population size: 150
 	Chromosome length: 5 * 7
-	Populations generated: ???
+	Populations generated: 10 969
 
 	Dimensions: 10
 	Population size: 150
