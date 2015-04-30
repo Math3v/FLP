@@ -18,8 +18,8 @@
 :- dynamic dimensions/1.
 
 % Configuration
-:- consult(elliptic).
-dimensions(5).
+:- consult(ackley).
+dimensions(10).
 chromosomes(150).
 
 % Utils
