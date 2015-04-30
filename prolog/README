@@ -1,0 +1,13 @@
+Geneticky algoritmus
+Matej Minarik (XMINAR29)
+
+Program pocas behu vypisuje aktualny pocet krizeni jedincov
+vzdy po prekroceni hranice 10 000. Okrem toho vypisuje 
+aktualnu najlepsiu fitness hodnotu.
+
+Program hlada pre vsetky funkcie hodnotu 0, ktora predstavuje
+pre vacsinu globalne minimum (niektore funkcie vracaju aj zaporne
+hodnoty, preto kontrolujem absolutnu hodnotu).
+
+Pouzitu fitness funkciu aj dalsie parametre je mozne nastavit
+v subore ga.pl na jeho zaciatku (riadok 20).
