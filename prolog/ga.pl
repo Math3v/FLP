@@ -234,11 +234,7 @@ gen_chromo(Chromo):-
 
 gen_chromo([], 0).
 gen_chromo([H|T], N):-
-	(maybe ->
-		H is 1 
-		;
-		H is 0
-	),
+	H is random(2),
 	N1 is N - 1,
 	gen_chromo(T, N1).
 
