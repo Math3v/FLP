@@ -214,7 +214,9 @@ mutate:-
 	(Mut < 10) ->
 	(
 	findall(Uid, chromo(Uid,_,_,_,_), Uids),
-	random_member(RUid, Uids),
+	length(Uids, Len),
+	random(0, Len, R),
+	nth0(R, Uids, RUid),
 	chromo(RUid, Ch, Val, Fit, CPt),
 	length(Ch, Length),
 	random(0, Length, Rand),
